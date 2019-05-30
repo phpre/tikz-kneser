@@ -1,0 +1,493 @@
+\ProvidesFileRCS{tikzlibrarykneser.code.tex}
+
+\usepackage{ifthen}
+\usetikzlibrary{calc}
+\usetikzlibrary{positioning}
+\usetikzlibrary{shapes.geometric}
+\usetikzlibrary{shapes.misc, decorations.pathreplacing}
+\usetikzlibrary{arrows.meta}
+
+\makeatletter
+\newcommand\intersect[4]{
+    % Computes whether two given sets intersect, returns 1 if they intersect, 0 otherwise
+    % #1 = variable to store the result
+    % #2 = length
+    % #3 = number 1 (base 10)
+    % #4 = number 2 (base 10)
+    \def\@res{0}
+
+    \pgfmathsetmacro\@tmp{#3}%
+    \pgfmathsetmacro\@tmpp{#4}%
+    \foreach \@i in {1,...,#2}{%
+        \pgfmathsetmacro\@ttmp{div(\@tmp,2)}%
+        \pgfmathsetmacro\@ttmpp{div(\@tmpp,2)}%
+        \pgfmathsetmacro{\@rr}{int(\@tmp - 2*\@ttmp)}%
+        \pgfmathsetmacro{\@rrr}{int(\@tmpp - 2*\@ttmpp)}%
+        \pgfmathsetmacro{\@rrrr}{int(\@rr * \@rrr)}%
+        \ifthenelse{\@rrrr=1}{
+            \global\def\@res{1}
+            \breakforeach
+        }{}
+        \global\let\@tmp=\@ttmp%
+        \global\let\@tmpp=\@ttmpp%
+    }%
+
+    \def#1{\@res}
+}
+
+\newcommand\numtxt[3]{%
+    % Converts a bitstring into an array: 0b001 -> {0,0,1}
+    % #1 = variable to store the list
+    % #2 = length
+    % #3 = number (base 10)
+    \gdef\store@temp{\@gobble}%
+    \pgfmathsetmacro\@tmp{#3}%
+    \foreach \@i in {1,...,#2}{%
+        \pgfmathsetmacro\@ttmp{div(\@tmp,2)}%
+        \pgfmathparse{int(\@tmp - 2*\@ttmp)}%
+        \xdef\store@temp{\store@temp,\pgfmathresult}%
+        \global\let\@tmp=\@ttmp%
+    }%
+    \gdef\store@@temp{\@gobble}%
+    \foreach \@i in {#2,...,1}{%
+        \pgfmathparse{{\store@temp}[\@i-1]}%
+        \xdef\store@@temp{\store@@temp,\pgfmathresult}%
+    }%
+    \let#1=\store@@temp%
+}
+\newcommand\numnext[3]{%
+    % Generates next bitstring with same amount of 1's
+    % #1 = variable to store the result
+    % #2 = length
+    % #3 = number (base 10)
+
+    \gdef\store@temp{\@gobble}%
+    \pgfmathsetmacro\@tmp{#3}%
+    \foreach \@i in {1,...,#2}{%
+        \pgfmathsetmacro\@ttmp{div(\@tmp,2)}%
+        \pgfmathparse{int(\@tmp - 2*\@ttmp)}%
+        \xdef\store@temp{\store@temp,\pgfmathresult}%
+        \global\let\@tmp=\@ttmp%
+    }%
+
+
+    \def\@cnt{0}
+    \def\@result{0}
+    \def\@car{1}
+    \def\@done{0}
+    \foreach \@i in {1,...,#2}{%
+        \pgfmathsetmacro{\@cc}{{\store@temp}[\@i-1]}%
+        \ifthenelse{\@done=1}{
+            \ifthenelse{\@cc=1}{
+                \pgfmathsetmacro{\@td@}{int(\@result+(\@cc*\@car))}
+                \global\let\@result=\@td@
+            }{}
+       }{
+            \ifthenelse{\@cc=1}{
+                \pgfmathsetmacro{\@t@mp}{int(\@cnt + 1)}
+                \global\let\@cnt=\@t@mp%
+            }{
+                \ifthenelse{\@cnt>0}{
+                    \global\def\@done{1}
+                    \pgfmathsetmacro{\@t@}{int(\@result+\@car)}
+                    \global\let\@result=\@t@
+                    \pgfmathsetmacro{\@tt@}{1}
+                    \pgfmathsetmacro{\@ccnt@}{int(\@cnt-1)}
+                    \ifthenelse{\@ccnt@>0}{
+                    \foreach\@d in {1,...,\@ccnt@}{
+                        \pgfmathsetmacro{\@td@}{int(\@result+\@tt@)}
+                        \global\let\@result=\@td@
+                        \pgfmathsetmacro{\@ttt@}{int(2*\@tt@)}
+                        \global\let\@tt@=\@ttt@
+                    }
+                    }{}
+                }{}
+            }
+        }
+        \pgfmathsetmacro{\@car@}{int(2*\@car)}
+        \global\let\@car=\@car@
+    }
+
+    \let#1=\@result
+}
+\newcommand\numidx[3]{%
+    % Converts a bitstring into an array containing the indices being 1: 0b00110 -> {3,4}
+    % #1 = variable to store the list
+    % #2 = length
+    % #3 = number (base 10)
+    \gdef\store@temp{\@gobble}%
+    \pgfmathsetmacro\@cnt{0}%
+    \pgfmathsetmacro\@tmp{#3}%
+    \foreach \@i in {1,...,#2}{%
+        \pgfmathsetmacro\@ttmp{div(\@tmp,2)}%
+        \pgfmathsetmacro\@r{int(\@tmp - 2*\@ttmp)}%
+        \ifthenelse{\@r=1}{%
+            \pgfmathsetmacro{\@s}{int(\@cnt+1)}%
+            \global\let\@cnt=\@s%
+            \pgfmathparse{int(#2-\@i+1)}%
+            \xdef\store@temp{\store@temp,\pgfmathresult}%
+        }{}%
+        \global\let\@tmp=\@ttmp%
+    }%
+    \xdef\store@temp{\store@temp,}%
+    \ifthenelse{\@cnt=0}{%
+        \let#1=\empty%
+    }{%
+        \gdef\store@@temp{\@gobble}%
+        \foreach \@i in {\@cnt,...,1}{%
+            \pgfmathparse{{\store@temp}[\@i-1]}%
+            \xdef\store@@temp{\store@@temp,\pgfmathresult}%
+        }%
+        \let#1=\store@@temp%
+    }%
+}
+
+\tikzset{style/.store in=\sty,style=10}
+    %   x0/x1/x2 display mode: set/both/string
+    %   0y/1y/2y background mode: empty/[fill color]/(unused)
+
+
+\tikzset{
+    % Kneser set visualization
+    % #1 length of bitstring
+    % #2 bitstring
+    pics/kneserset/.style args={#1/#2}{
+        code = {
+            \pgfmathsetmacro{\bg}{int(div(\sty,10))}
+            \pgfmathsetmacro{\mode}{int(\sty - \bg * 10)}
+
+            \ifthenelse{\mode<2}{
+                \ifthenelse{#1=0}{}{
+                    \numtxt{\arr}{#1}{0b#2}
+                }
+                \ifthenelse{\bg=0}{
+                    \node[circle,minimum size=#1*2pt+16pt]  {};
+                    \node[solid,circle,minimum size=#1*2pt+13pt,draw,thick]  {};
+                }{
+                   \ifthenelse{\mode>0}{
+                        \numidx{\res}{#1}{0b#2}
+                        \ifx\tikz@fillcolor\pgfutil@empty
+%                            \node[fill=white,inner sep=2pt,%minimum width=#1*2pt+16pt,
+%                            rounded corners=5pt] (nn) at (0,-#1*1pt-14pt) {$\{\res\}$};
+%                            \fill[white]
+%                            (nn.east)
+%                            [rounded corners=5pt]
+%                            -- (nn.north east)
+%                            [sharp corners]
+%                            -- (tangent cs:node=cc,point={(nn.north east)},solution=1)
+%                            -- (tangent cs:node=cc,point={(nn.north west)},solution=2)
+%                            [rounded corners=5pt]
+%                            -- (nn.north west)
+%                            [sharp corners]
+%                            -- (nn.west) -- cycle;
+                            \node[fill=white,inner sep=2pt,%minimum width=#1*2pt+16pt,
+                            rounded corners=5pt] (nn) at (0,-#1*1pt-14pt) {$\{\res\}$};
+                        \else
+%                            \node[draw=\tikz@fillcolor,fill,inner sep=1.5pt, minimum width=
+%                            #1*2pt+16pt, rounded corners=5pt] (nn) at (0,-#1*1pt-14pt) {$\{\res\}$};
+%                            \fill
+%                            (nn.east)
+%                            [rounded corners=5pt]
+%                            -- (nn.north east)
+%                            [sharp corners]
+%                            -- (tangent cs:node=cc,point={(nn.north east)},solution=1)
+%                            -- (tangent cs:node=cc,point={(nn.north west)},solution=2)
+%                            [rounded corners=5pt]
+%                            -- (nn.north west)
+%                            [sharp corners]
+%                            -- (nn.west) -- cycle;
+                            \node[fill,inner sep=2pt,%minimum width=#1*2pt+16pt,
+                            rounded corners=5pt] (nn) at (0,-#1*1pt-14pt) {$\{\res\}$};
+                        \fi
+                    }{}
+                    \ifx\tikz@fillcolor\pgfutil@empty
+                        \node[circle,minimum size=#1*2pt+16pt,fill=white] (cc) {};
+                    \else
+                        \node[fill,circle,minimum size=#1*2pt+16pt] (cc) {};
+                    \fi
+                    \ifthenelse{\bg=1}{
+                        \node[solid,circle,minimum size=#1*2pt+14pt,draw,thick]  {};
+                    }{}
+                    \node[circle,minimum size=#1*2pt+12pt,fill=white] {};
+                }
+                \ifthenelse{#1<3}{
+                    \ifthenelse{#1<2}{
+                        \ifthenelse{#1=0}{}{
+                            \pgfmathsetmacro{\x}{{\arr}[0]}
+                            \ifthenelse{\x=1}{
+                                \node[solid,black,draw,fill=black,circle,inner sep=1.5pt] (1) at (0,0) {};
+                            }{
+                                \node[solid,black,draw,fill=white,circle,inner sep=1.5pt] (1) at (0,0) {};
+                            }
+                        }
+                    }{
+                        \foreach \i in {1,...,#1} {
+                            \pgfmathsetmacro{\x}{{\arr}[\i-1]}
+                            \pgfmathsetmacro{\xx}{pow(-1,\i)*3}
+                            \ifthenelse{\x=1}{
+                                \node[solid,black,draw,fill=black,circle,inner sep=1.5pt](\i) at (\xx*1pt,0) {};
+                            }{
+                                \node[solid,black,draw,fill=white,circle,inner sep=1.5pt](\i)at (\xx*1pt,0) {};
+                            }
+                        }
+                    }
+                }{
+                    \node[regular polygon,regular polygon sides=#1,minimum size=#1*2pt,
+                    inner sep=0pt] at (0,0) (poly#1) {};
+                    \foreach \i in {1,...,#1} {
+                        \pgfmathsetmacro{\x}{{\arr}[\i-1]}
+                        \ifthenelse{\x=1}{
+                            \node[solid,black,draw,fill=black,circle,inner sep=1.5pt]
+                                (\i) at (poly#1.corner \i) {};
+                        }{
+                            \node[solid,black,draw,fill=white,circle,inner sep=1.5pt] (\i)
+                                at (poly#1.corner \i) {};
+                        }
+                    }
+                }
+            }{
+                \numidx{\res}{#1}{0b#2}
+                \ifx\tikz@fillcolor\pgfutil@empty
+                    \node[fill=white,inner sep=1.5pt,rounded corners=5pt] at (0,0) {$\{\res\}$};
+                \else
+                    \node[fill,inner sep=1.5pt,rounded corners=5pt] at (0,0) {$\{\res\}$};
+                \fi
+            }
+        }
+    }
+}
+
+\def\ldraw(#1)--(#2);{
+    \ifx\tikz@fillcolor\pgfutil@empty
+        \draw[thick] (#1) -- (#2);
+    \else
+        \draw[thick,double=black,draw=\tikz@fillcolor] (#1) -- (#2);
+    \fi
+}
+
+\tikzset{
+    % Draw Kneser Graph K(n,k)
+    % #1 n
+    % #2 k
+    % Takes lorg if n > 7; dies if n > 14
+    pics/kneser/.style args={#1/#2}{
+        code = {
+            \pgfmathsetmacro{\bg}{int(div(\sty,10))}
+            \pgfmathsetmacro{\mode}{int(\sty - \bg * 10)}
+
+            \newlinechar=`\^^J
+            \pgfmathsetmacro{\diff}{int(#1-#2)}
+            \ifthenelse{#2=0}{
+                % 0 element subsets ~> boring
+                \pic at (0,0) {kneserset=#1/0};
+            }{
+                \ifthenelse{\diff=0}{
+                    \pgfmathsetmacro{\all}{bin(int(pow(2,(#1+1))-1))}
+                    \pic at (0,0) {kneserset=#1/\all};
+                }{
+                    \pgfmathsetmacro{\db}{int(2*#2)}
+                    \pgfmathsetmacro{\all}{int(pow(2,(#1+4))-1)}
+                    \ifthenelse{\db=#1}{
+                        \pgfmathsetmacro{\tmo}{int(factorial(#1)/(factorial(#1-#2)*factorial(#2)*2)-1)}
+                        \pgfmathsetmacro{\tmr}{int(ceil(sqrt(\tmo*2)))}
+
+                        \def\strt{0}
+                        \foreach\d in {1,...,#2}{
+                            \pgfmathsetmacro{\ttt}{int(2*\strt+1)}
+                            \global\let\strt=\ttt
+                        }
+
+                        \ifthenelse{\tmr<5}{\pgfmathsetmacro\tmr{int(5)}}{}
+                        \foreach\i[count=\j from 0] in {0,...,\tmo}{
+                            \pgfmathsetmacro{\rem}{int(1+\tmo-(div(\j,\tmr)*\tmr))}
+                            \ifthenelse{\rem>\tmr}{\pgfmathsetmacro\rem\tmr}{}
+
+                            \pgfmathsetmacro{\nx}{int(-#1*2-12 + (-div(\tmo,\rem)/2+div(\i,\rem))*(#1*2+12+50+#1*2))}
+                            \pgfmathsetmacro{\nxx}{int(#1*2+12 + (-div(\tmo,\rem)/2+div(\i,\rem))*(#1*2+12+50+#1*2))}
+
+                            \ifthenelse{\mode=1}{\pgfmathsetmacro\dis{35}}
+                            {\pgfmathsetmacro\dis{20}}
+
+                            \pgfmathsetmacro{\ny}{(#1*2+\dis)*((\rem-1)/2 - mod(\i,\rem))}
+
+                            \node (1\i) at (\nx*1pt,\ny*1pt) {};
+                            \node (2\i) at (\nxx*1pt,\ny*1pt) {};
+                            \ldraw(1\i)--(2\i);
+                            \draw[thick](1\i)--(2\i);
+
+                            \pgfmathsetmacro{\jj}{bin(int(\strt))}
+                            \pgfmathsetmacro{\jd}{bin(int(\all-\strt))}
+
+                            \pic[style=1\mode] at (1\i) {kneserset=#1/\jj};
+                            \pic[style=1\mode] at (2\i) {kneserset=#1/\jd};
+
+                            \numnext{\tstrt}{#1}{\strt}
+                            \global\let\strt=\tstrt
+                        }
+                    }{
+                    \ifthenelse{\diff=1}{
+                        \pgfmathsetmacro{\all}{int(pow(2,(#1+1))-1)}
+                        \ifthenelse{\mode=1}{
+                            \node[regular polygon,regular polygon sides=#1,minimum size=#1*18pt]
+                        }{
+                            \node[regular polygon,regular polygon sides=#1,minimum size=#1*14pt]
+                        }
+                        (p#1) {};
+                        \def\tmp{1}
+                        \foreach \i[count=\j from 1] in {#1,...,1} {
+                            \edef\tp{\tmp}
+                            \pgfmathsetmacro{\jd}{bin(int(\all-0b\tmp))}
+                            \pic[style=1\mode] at (p#1.corner \i) {kneserset=#1/\jd};
+                            \global\edef\tmp{\tp0}
+                        }
+
+                    }{
+                    \ifthenelse{\db>#1}{
+                    % No edges. Just draw the sets in a compact way
+                        \pgfmathsetmacro{\tmo}{int(factorial(#1)/(factorial(#1-#2)
+                        *factorial(#2)))}
+                        \def\strt{0}
+                        \foreach\d in {1,...,#2}{
+                            \pgfmathsetmacro{\ttt}{int(2*\strt+1)}
+                            \global\let\strt=\ttt
+                        }
+                        \pgfmathsetmacro{\tmr}{int(ceil(sqrt(\tmo)))}
+                        \ifthenelse{\tmr<1}{\pgfmathsetmacro\tmr{int(1)}}{}
+
+                        \foreach\i[count=\j from 0] in {1,...,\tmo}{
+                            \pgfmathsetmacro{\rem}{int(\tmo-(div(\j,\tmr)*\tmr))}
+                            \ifthenelse{\rem>\tmr}{\pgfmathsetmacro\rem\tmr}{}
+
+                            \ifthenelse{\mode=1}{\pgfmathsetmacro\dis{35}}
+                            {\pgfmathsetmacro\dis{20}}
+
+                            \pgfmathsetmacro{\nx}{int((-div(\tmo,\tmr)/2+div(\j,\tmr))*(#1*2+\dis))}
+                            \pgfmathsetmacro{\ny}{(#1*2+\dis)*((\rem-1)/2 - mod(\i,\rem))}
+
+                            \pgfmathsetmacro{\cur}{bin(\strt)}
+                            \pic at (\nx*1pt,\ny*1pt) {kneserset=#1/\cur};
+
+                            \numnext{\tstrt}{#1}{\strt}
+                            \global\let\strt=\tstrt
+                        }
+                    }{
+                        \ifthenelse{#2=1}{
+                            % 1 element subsets ~> draw clique on n vertices
+
+                            \ifthenelse{\mode=1}{
+                                \node[regular polygon,regular polygon sides=#1,minimum size=#1*18pt]
+                            }{
+                                \node[regular polygon,regular polygon sides=#1,minimum size=#1*14pt]
+                            }
+                            (p#1) {};
+                            \foreach \i in {#1,...,1} { \foreach \j in {#1,...,1} {
+                                    \ifthenelse{\i=\j}{}{
+                                        \ldraw(p#1.corner \i)--(p#1.corner \j);
+                                    }
+                            }}
+                            \foreach \i in {#1,...,1} { \foreach \j in {#1,...,1} {
+                                    \ifthenelse{\i=\j}{}{
+                                        \draw[thick](p#1.corner \i)--(p#1.corner \j);
+                                    }
+                            }}
+
+                            \def\tmp{1}
+                            \foreach \i[count=\j from 1] in {#1,...,1} {
+                                \edef\tp{\tmp}
+                                \pic[style=1\mode] at (p#1.corner \i) {kneserset=#1/\tmp};
+                                \global\edef\tmp{\tp0}
+                            }
+                        }{
+                        \ifthenelse{#1>5}{
+                            \pgfmathsetmacro{\tmo}{int(factorial(#1)/(factorial(#1-#2)
+                            *factorial(#2)))}
+                            \ifthenelse{\mode=1}{
+                                \node[regular polygon,regular polygon sides=\tmo,minimum size=\tmo*20pt](o#1){};
+                                }{
+                                \node[regular polygon,regular polygon sides=\tmo,minimum size=\tmo*10pt](o#1){};
+                            }
+                            \def\strt{0}
+                            \foreach\d in {1,...,#2}{
+                                \pgfmathsetmacro{\ttt}{int(2*\strt+1)}
+                                \global\let\strt=\ttt
+                            }
+                            \gdef\seen{\@gobble}
+                            \gdef\prsx{\@gobble}
+                            \gdef\prsy{\@gobble}
+                            \def\cnt{0}
+                            \foreach\i[count=\j from 0] in {1,...,\tmo}{
+                                \ifthenelse{\j>0}{
+                                    \foreach\g in {1,...,\j}{
+                                        \pgfmathsetmacro{\cur}{int({\seen}[\g-1])}
+                                        \intersect{\inte}{#1}{\cur}{\strt}
+                                        \ifthenelse{\inte=0}{
+                                            \ldraw(o#1.corner \i)--(o#1.corner \g);
+                                            \xdef\prsx{\prsx,\i}
+                                            \xdef\prsy{\prsy,\g}
+                                            \pgfmathsetmacro{\gnr}{int(\cnt+1)}
+                                            \global\let\cnt=\gnr
+                                        }{}
+                                    }
+                                }{}
+
+                                \xdef\seen{\seen,\strt}
+                                \numnext{\tstrt}{#1}{\strt}
+                                \global\let\strt=\tstrt
+                            }
+                            \ifthenelse{\cnt>0}{
+                            \foreach\i in {1,...,\cnt}{
+                                \pgfmathsetmacro{\curx}{{\prsx}[\i-1])}
+                                \pgfmathsetmacro{\cury}{{\prsy}[\i-1])}
+                                \draw[thick](o#1.corner \curx)--(o#1.corner \cury);
+                            }}{}
+                            \foreach\i[count=\j from 0] in {1,...,\tmo}{
+                                \pgfmathsetmacro{\cur}{bin({\seen}[\j])}
+                                \pic[style=1\mode] at (o#1.corner \i) {kneserset=#1/\cur};
+                            }
+                        }{}
+                        }
+                        \ifthenelse{#2=2}{
+                            \ifthenelse{#1=5}{
+                                \ifthenelse{\mode=1}{
+                                    \node[regular polygon,regular polygon sides=#1,minimum size=#1*35pt](o#1){};
+                                    \node[regular polygon,regular polygon sides=#1,minimum size=#1*16pt](p#1){};
+                                    }{
+                                    \node[regular polygon,regular polygon sides=#1,minimum size=#1*27pt](o#1){};
+                                    \node[regular polygon,regular polygon sides=#1,minimum size=#1*12pt](p#1){};
+                                }
+                                \foreach \i[count=\j from 1] in {1,...,5} {
+                                    \pgfmathsetmacro{\l}{int(mod(\j+3,5)+1)}
+                                    \pgfmathsetmacro{\k}{int(mod(\j+1,5)+1)}
+                                    \pgfmathsetmacro{\g}{int(mod(\j+2,5)+1)}
+                                    \ldraw(o#1.corner \j)--(p#1.corner \j);
+                                    \ldraw(o#1.corner \j)--(o#1.corner \l);
+                                    \ldraw(p#1.corner \j)--(p#1.corner \k);
+                                    \ldraw(p#1.corner \j)--(p#1.corner \g);
+                                }
+                                \foreach \i[count=\j from 1] in {1,...,5} {
+                                    \pgfmathsetmacro{\l}{int(mod(\j+3,5)+1)}
+                                    \pgfmathsetmacro{\k}{int(mod(\j+1,5)+1)}
+                                    \pgfmathsetmacro{\g}{int(mod(\j+2,5)+1)}
+                                    \draw[thick] (o#1.corner \j) -- (p#1.corner \j);
+                                    \draw[thick] (o#1.corner \j) -- (o#1.corner \l);
+                                    \draw[thick] (p#1.corner \j) -- (p#1.corner \k);
+                                    \draw[thick] (p#1.corner \j) -- (p#1.corner \g);
+                                }
+
+                                \foreach \i[count=\j from 1] in {1001,10100,1010,101,10010} {
+                                    \pic[style=1\mode] at (o#1.corner \j) {kneserset=#1/\i};
+                                }
+                                \foreach \i[count=\j from 1] in {110,11,10001,11000,1100} {
+                                    \pic[style=1\mode] at (p#1.corner \j) {kneserset=#1/\i};
+                                }
+                            }{}
+                        }{}
+                    }}}
+                }
+            }
+        }
+    }
+}
+
+\makeatother
+
