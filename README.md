@@ -1,5 +1,5 @@
 # tikz-kneser
-A tikz-library for drawing Kneser graphs.
+A tikz-library for drawing Kneser graphs (that doesn't rely on `tikz-graphdrawing` or `LuaLatex`).
 
 Include this library via
 ``` Tex
@@ -83,7 +83,7 @@ which takes the length and the elements (as a bitstring) as arguments (and style
 ```
 ![](https://github.com/PH111P/tikz-kneser/blob/master/pics/kneserset.png)
 
-Also check out the Kneser triangle:
+Also check out the Kneser triangle (uncomment the last 3 lines if you like to see your TeX installation struggle):
 ``` Tex
 \begin{tikzpicture}
     \pic {kneser=0/0};
@@ -96,6 +96,9 @@ Also check out the Kneser triangle:
     \pic at (-35, -25.5) {kneser=7/0};
     \pic at (35, -25.5) {kneser=7/7};
     \foreach\j in {1,...,6} \pic at (-38.5+\j*11, -25.5) {kneser=7/\j};
+    %\pic at (-65, -40) {kneser=8/0};
+    %\pic at (65, -40) {kneser=8/8};
+    %\foreach\j in {1,...,7} \pic at (-72+\j*18, -40) {kneser=8/\j};
 \end{tikzpicture}
 ```
 ![](https://github.com/PH111P/tikz-kneser/blob/master/pics/triangle.png)
