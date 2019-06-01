@@ -5,18 +5,6 @@
 
 \begin{document}
 \begin{tikzpicture}
- %   \pic at (0,0) {kneserset=1/1};
- %   \pic[style=11,fill=yellow] at (1,0) {kneserset=2/1};
- %   \pic at (2,0) {kneserset=3/1};
- %   \pic at (3,0) {kneserset=4/1};
- %   \pic at (4,0) {kneserset=5/1};
- %   \pic at (5,0) {kneserset=6/1};
- %   \pic[blue,dashed,style=11] at (6.5,0) {kneserset=14/1};
- %   \pic[white,fill=black,style=21] at (8.5,0) {kneserset=14/111};
- %   \pic[white,fill=black,style=21] at (8.5,-2.5) {kneserset=14/11111111111111};
- %   \pic[white,fill=black,style=20] at (10.5,0) {kneserset=14/11};
- %   \pic[white,fill=black,style=22] at (12.5,0) {kneserset=14/11};
-
     \pic {kneser=0/0};
     \foreach\j in {0,...,1} \pic at (-.5+\j, -.6) {kneser=1/\j};
     \foreach\j in {0,...,2} \pic at (-2+\j*2, -1.5) {kneser=2/\j};
@@ -27,5 +15,8 @@
     \pic at (-35, -25.5) {kneser=7/0};
     \pic at (35, -25.5) {kneser=7/7};
     \foreach\j in {1,...,6} \pic at (-38.5+\j*11, -25.5) {kneser=7/\j};
+    \pic at (-65, -40) {kneser=8/0};
+    \pic at (65, -40) {kneser=8/8};
+    \foreach\j in {1,...,7} \pic at (-72+\j*18, -40) {kneser=8/\j};
 \end{tikzpicture}
 \end{document}
