@@ -18,7 +18,7 @@ And drawing kneser graphs becomes as easy as
 Limitations
 --
 
-Due to limitations of TeX, currently only the Kneser graphs `K(n,k)` for `n ≤ 9` can be generated; 
+Due to limitations of TeX, currently only the Kneser graphs `K(n,k)` for `n ≤ 9` can be generated;
 starting from `n ≥ 8` computing the graphs takes rather long though.
 
 Examples
@@ -44,7 +44,8 @@ The graphs `K(n,1)` and `K(n,n-1)` get a special treatment as well:
 ```
 ![](https://github.com/PH111P/tikz-kneser/blob/master/pics/K_7_1_7_6.png)
 
-Also, the ladder graphs `K(2n,n)` get a special treatment; you may _color_ and _fill_ the graphs as well:
+Also, the ladder graphs `K(2n,n)` get a special treatment.
+Further, you may _color_ and _fill_ any of the Kneser graphs as well:
 
 ``` Tex
 \begin{tikzpicture}
@@ -66,7 +67,7 @@ If you prefer sets as nodes, the library has you covered, too (`style` may be on
 ```
 ![](https://github.com/PH111P/tikz-kneser/blob/master/pics/styles.png)
 
-If you're only interested in these fancy representations of sets, just use the picture `kneserset`, 
+If you're only interested in these fancy representations of sets, just use the picture `kneserset`,
 which takes the length and the elements (as a bitstring) as arguments (and styles work as well):
 
 ``` Tex
@@ -81,3 +82,20 @@ which takes the length and the elements (as a bitstring) as arguments (and style
 \end{tikzpicture}
 ```
 ![](https://github.com/PH111P/tikz-kneser/blob/master/pics/kneserset.png)
+
+Also check out the Kneser triangle:
+``` Tex
+\begin{tikzpicture}
+    \pic {kneser=0/0};
+    \foreach\j in {0,...,1} \pic at (-.5+\j, -.6) {kneser=1/\j};
+    \foreach\j in {0,...,2} \pic at (-2+\j*2, -1.5) {kneser=2/\j};
+    \foreach\j in {0,...,3} \pic at (-4.5+\j*3, -3.25) {kneser=3/\j};
+    \foreach\j in {0,...,4} \pic at (-8+\j*4, -5.75) {kneser=4/\j};
+    \foreach\j in {0,...,5} \pic at (-12.5+\j*5, -10) {kneser=5/\j};
+    \foreach\j in {0,...,6} \pic at (-18+\j*6, -15.5) {kneser=6/\j};
+    \pic at (-35, -25.5) {kneser=7/0};
+    \pic at (35, -25.5) {kneser=7/7};
+    \foreach\j in {1,...,6} \pic at (-38.5+\j*11, -25.5) {kneser=7/\j};
+\end{tikzpicture}
+```
+![](https://github.com/PH111P/tikz-kneser/blob/master/pics/triangle.png)
