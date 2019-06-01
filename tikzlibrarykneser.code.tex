@@ -1,5 +1,3 @@
-\ProvidesFileRCS{tikzlibrarykneser.code.tex}
-
 \usepackage{ifthen}
 \usetikzlibrary{calc}
 \usetikzlibrary{positioning}
@@ -8,6 +6,32 @@
 \usetikzlibrary{arrows.meta}
 
 \makeatletter
+
+\pgfmathdeclarefunction*{binom}{2}{%
+    \begingroup
+        \pgfmathcontinuelooptrue
+        \c@pgf@counta=0
+        \c@pgf@countb=1
+        \c@pgf@countc=1
+        \loop
+        \ifpgfmathcontinueloop
+            \ifnum\c@pgf@counta=#2\relax
+                \pgfmathcontinueloopfalse
+            \else
+                \c@pgf@countd=#1
+                \advance\c@pgf@countd by-\c@pgf@counta
+                \multiply\c@pgf@countc by\c@pgf@countd
+                \divide\c@pgf@countc by\c@pgf@countb
+                \advance\c@pgf@counta by1\relax
+                \advance\c@pgf@countb by1\relax
+            \fi
+        \repeat
+        \pgfmathparse{int(\c@pgf@countc)}%
+        \pgfmath@smuggleone\pgfmathresult
+    \endgroup
+}
+        %\pgfmathloop% c -> c*(n-i)/(i+1) for i=0,...,k-1
+
 \newcommand\intersect[4]{
     % Computes whether two given sets intersect, returns 1 if they intersect, 0 otherwise
     % #1 = variable to store the result
@@ -73,13 +97,13 @@
 
     \def\@cnt{0}
     \def\@result{0}
-    \def\@car{1}
+    \def\@ca@r{1}
     \def\@done{0}
     \foreach \@i in {1,...,#2}{%
         \pgfmathsetmacro{\@cc}{{\store@temp}[\@i-1]}%
         \ifthenelse{\@done=1}{
             \ifthenelse{\@cc=1}{
-                \pgfmathsetmacro{\@td@}{int(\@result+(\@cc*\@car))}
+                \pgfmathsetmacro{\@td@}{int(\@result+(\@cc*\@ca@r))}
                 \global\let\@result=\@td@
             }{}
        }{
@@ -89,7 +113,7 @@
             }{
                 \ifthenelse{\@cnt>0}{
                     \global\def\@done{1}
-                    \pgfmathsetmacro{\@t@}{int(\@result+\@car)}
+                    \pgfmathsetmacro{\@t@}{int(\@result+\@ca@r)}
                     \global\let\@result=\@t@
                     \pgfmathsetmacro{\@tt@}{1}
                     \pgfmathsetmacro{\@ccnt@}{int(\@cnt-1)}
@@ -104,8 +128,8 @@
                 }{}
             }
         }
-        \pgfmathsetmacro{\@car@}{int(2*\@car)}
-        \global\let\@car=\@car@
+        \pgfmathsetmacro{\@ca@r@}{int(2*\@ca@r)}
+        \global\let\@ca@r=\@ca@r@
     }
 
     \let#1=\@result
@@ -269,7 +293,7 @@
     % Draw Kneser Graph K(n,k)
     % #1 n
     % #2 k
-    % Takes lorg if n > 7; dies if n > 14
+    % Takes long if n > 7; dies if n > 9
     pics/kneser/.style args={#1/#2}{
         code = {
             \pgfmathsetmacro{\bg}{int(div(\sty,10))}
@@ -288,7 +312,8 @@
                     \pgfmathsetmacro{\db}{int(2*#2)}
                     \pgfmathsetmacro{\all}{int(pow(2,(#1+4))-1)}
                     \ifthenelse{\db=#1}{
-                        \pgfmathsetmacro{\tmo}{int(factorial(#1)/(factorial(#1-#2)*factorial(#2)*2)-1)}
+                        %\pgfmathsetmacro{\tmo}{int(factorial(#1)/(factorial(#1-#2)*factorial(#2)*2)-1)}
+                        \pgfmathsetmacro{\tmo}{int(binom(#1,#2)/2-1)}
                         \pgfmathsetmacro{\tmr}{int(ceil(sqrt(\tmo*2)))}
 
                         \def\strt{0}
@@ -302,8 +327,8 @@
                             \pgfmathsetmacro{\rem}{int(1+\tmo-(div(\j,\tmr)*\tmr))}
                             \ifthenelse{\rem>\tmr}{\pgfmathsetmacro\rem\tmr}{}
 
-                            \pgfmathsetmacro{\nx}{int(-#1*2-12 + (-div(\tmo,\rem)/2+div(\i,\rem))*(#1*2+12+50+#1*2))}
-                            \pgfmathsetmacro{\nxx}{int(#1*2+12 + (-div(\tmo,\rem)/2+div(\i,\rem))*(#1*2+12+50+#1*2))}
+                            \pgfmathsetmacro{\nx}{int(-#1*2-12 + (-div(\tmo,\tmr)/2+div(\i,\tmr))*(#1*2+12+50+#1*2))}
+                            \pgfmathsetmacro{\nxx}{int(#1*2+12 + (-div(\tmo,\tmr)/2+div(\i,\tmr))*(#1*2+12+50+#1*2))}
 
                             \ifthenelse{\mode=1}{\pgfmathsetmacro\dis{35}}
                             {\pgfmathsetmacro\dis{20}}
@@ -344,8 +369,7 @@
                     }{
                     \ifthenelse{\db>#1}{
                     % No edges. Just draw the sets in a compact way
-                        \pgfmathsetmacro{\tmo}{int(factorial(#1)/(factorial(#1-#2)
-                        *factorial(#2)))}
+                        \pgfmathsetmacro{\tmo}{int(binom(#1,#2))}
                         \def\strt{0}
                         \foreach\d in {1,...,#2}{
                             \pgfmathsetmacro{\ttt}{int(2*\strt+1)}
@@ -399,8 +423,7 @@
                             }
                         }{
                         \ifthenelse{#1>5}{
-                            \pgfmathsetmacro{\tmo}{int(factorial(#1)/(factorial(#1-#2)
-                            *factorial(#2)))}
+                            \pgfmathsetmacro{\tmo}{int(binom(#1,#2))}
                             \ifthenelse{\mode=1}{
                                 \node[regular polygon,regular polygon sides=\tmo,minimum size=\tmo*20pt](o#1){};
                                 }{

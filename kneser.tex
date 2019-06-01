@@ -5,6 +5,9 @@
 
 \begin{document}
 \begin{tikzpicture}
+    \pic {kneser=9/2};
+\end{tikzpicture}
+\end{document}
  %   \pic at (0,0) {kneserset=1/1};
  %   \pic[style=11,fill=yellow] at (1,0) {kneserset=2/1};
  %   \pic at (2,0) {kneserset=3/1};
@@ -24,6 +27,8 @@
     \foreach\j in {0,...,4} \pic at (-8+\j*4, -5.75) {kneser=4/\j};
     \foreach\j in {0,...,5} \pic at (-12.5+\j*5, -10) {kneser=5/\j};
     \foreach\j in {0,...,6} \pic at (-18+\j*6, -15.5) {kneser=6/\j};
-    \foreach\j in {0,...,7} \pic at (-38.5+\j*11, -25.5) {kneser=7/\j};
+    \pic at (-35, -25.5) {kneser=7/0};
+    \pic at (35, -25.5) {kneser=7/7};
+    \foreach\j in {1,...,6} \pic at (-38.5+\j*11, -25.5) {kneser=7/\j};
 \end{tikzpicture}
 \end{document}
