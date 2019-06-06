@@ -61,7 +61,7 @@ If you prefer sets as nodes, the library has you covered, too (`style` may be on
 ``` Tex
 \begin{tikzpicture}
   \pic[style=10] at (-7,0) {kneser=6/2};
-  \pic[style=11] at (-2,0) {kneser=6/2};
+  \pic[style=11] at (0,0) {kneser=6/2};
   \pic[style=12] at (7,0) {kneser=6/2};
 \end{tikzpicture}
 ```
