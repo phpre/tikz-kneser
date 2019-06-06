@@ -30,7 +30,6 @@
         \pgfmath@smuggleone\pgfmathresult
     \endgroup
 }
-        %\pgfmathloop% c -> c*(n-i)/(i+1) for i=0,...,k-1
 
 \newcommand\intersect[4]{
     % Computes whether two given sets intersect, returns 1 if they intersect, 0 otherwise
@@ -422,36 +421,202 @@
                                 \global\edef\tmp{\tp0}
                             }
                         }{
-                        \ifthenelse{#1>5}{
-                            \pgfmathsetmacro{\tmo}{int(binom(#1,#2))}
-                            \ifthenelse{\mode=1}{
-                                \node[regular polygon,regular polygon sides=\tmo,minimum size=\tmo*20pt](o#1){};
-                                }{
-                                \node[regular polygon,regular polygon sides=\tmo,minimum size=\tmo*10pt](o#1){};
-                            }
-                            \def\strt{0}
-                            \foreach\d in {1,...,#2}{
-                                \pgfmathsetmacro{\ttt}{int(2*\strt+1)}
-                                \global\let\strt=\ttt
-                            }
+                        \ifthenelse{#2=2}{
+                            \pgfmathsetmacro{\nmk}{int(#1 - #2)}
+                            \pgfmathsetmacro{\nodd}{isodd(#1)}
+                            \pgfmathsetmacro{\ncnt}{int(binom(#1,#2))}
+                            \pgfmathsetmacro{\ecnt}{int(\ncnt*binom(\nmk,#2)/2)}
+
+                            \pgfmathsetmacro{\nrem}{int(\ncnt)}
+                            \pgfmathsetmacro{\nid}{int(0)}
+
+                            \pgfmathsetmacro{\mxn}{int(pow(2,#1)-1)}
+
+                            \pgfmathsetmacro{\rot}{int(isodd(#1) ? 0:-180/#1)}
+
+                            \pgfmathsetmacro{\nly}{int(isodd(#1) ? div(\ncnt,#1) : 1 + div(\ncnt,#1))}
+                            \pgfmathsetmacro{\lid}{int(1)}
+                            \pgfmathsetmacro{\nexl}{int(1 + max(1,div(\nly,2)))}
+
                             \gdef\seen{\@gobble}
+                            \gdef\poli{\@gobble}
+                            \gdef\polc{\@gobble}
+                            \ifthenelse{\nodd=1}{
+                                \foreach\lid in {1,...,\nly}{
+                                    \pgfmathsetmacro{\ctm}{int(1 + pow(2,1+2*(\lid-1)))}
+                                    \foreach \j in {#1,...,1} {
+                                        \pgfmathsetmacro{\idx}{int(mod(\j + div(#1,2) - \lid, #1)+1)}
+                                        \pgfmathsetmacro{\curset}{bin(\ctm)}
+                                        \xdef\seen{\seen,\curset}
+                                        \xdef\poli{\poli,\lid}
+                                        \xdef\polc{\polc,\idx}
+
+                                        \pgfmathsetmacro{\ctmm}{int(2*\ctm > \mxn ? mod(2*\ctm + 1,\mxn+1) : 2*\ctm)}
+                                        \global\let\ctm=\ctmm
+                                    }
+                                }
+
+                                \foreach\ld in {1,...,\nexl}{
+                                    \pgfmathsetmacro{\doub}{int((#1<\nrem) && \ld>1)}
+                                    \ifthenelse{\doub=1}{
+                                        \pgfmathsetmacro{\tm}{int(\nrem - #1)}
+                                        \global\let\nrem=\tm
+                                        \pgfmathsetmacro{\rott}{int(-90/#1)}
+                                        \ifthenelse{\mode=1}{
+                                            \node[regular polygon,regular polygon sides=#1,
+                                            minimum size=#1*\ld*19pt-#1*3pt,
+                                            rotate=\rot+\rott](p\lid){};
+                                        }{
+                                            \node[regular polygon, regular polygon sides=#1,
+                                            minimum size=#1*\ld*15pt-#1*3pt,
+                                            rotate=\rot+\rott](p\lid){};
+                                        }
+                                        \pgfmathsetmacro{\tm}{int(\lid+1)}
+                                        \global\let\lid=\tm
+                                        \ifthenelse{\mode=1}{
+                                            \node[regular polygon,regular polygon sides=#1,
+                                            minimum size=#1*\ld*20pt-#1*3pt,
+                                            rotate=\rot-\rott](p\lid){};
+                                        }{
+                                            \node[regular polygon, regular polygon sides=#1,
+                                            minimum size=#1*\ld*16pt-#1*3pt,
+                                            rotate=\rot-\rott](p\lid){};
+                                        }
+                                        \pgfmathsetmacro{\tm}{int(\lid+1)}
+                                        \global\let\lid=\tm
+                                        \pgfmathsetmacro{\tm}{int(\nrem - #1)}
+                                        \global\let\nrem=\tm
+                                    }{
+                                        \pgfmathsetmacro{\rott}{int(#1>5&&\lid==1?-#1/2:0)}
+                                        \ifthenelse{\mode=1}{
+                                            \node[regular polygon,regular polygon sides=#1,
+                                            minimum size=#1*\ld*19pt-#1*3pt,
+                                            rotate=\rott](p\lid){};
+                                        }{
+                                            \node[regular polygon, regular polygon sides=#1,
+                                            minimum size=#1*\ld*15pt-#1*3pt,
+                                            rotate=\rott](p\lid){};
+                                        }
+                                        \pgfmathsetmacro{\tm}{int(\lid+1)}
+                                        \global\let\lid=\tm
+                                        \pgfmathsetmacro{\tm}{int(\nrem - #1)}
+                                        \global\let\nrem=\tm
+                                    }
+                                }
+                            }{
+                                \pgfmathsetmacro{\rotsh}{iseven(#1/2)}
+                                \foreach\lid in {1,...,\nly}{
+                                    \pgfmathsetmacro{\curn}{int((\lid==ceil(#1/4)&&not(\rotsh))
+                                    || (\lid==\nly && \rotsh)?#1/2:#1)}
+                                    \pgfmathsetmacro{\bnd}{int(int(\curn!=#1 ? 1 : \curn)}
+                                    \pgfmathsetmacro{\bend}{int(int(\curn!=#1 ? \curn :1)}
+                                    \pgfmathsetmacro{\ctm}{int(1 + pow(2,(\lid>ceil(#1/4) ? 0: 1)
+                                        +2*(\lid>ceil(#1/4)?\lid-div(#1,4):\lid-1)))}
+                                    \foreach \j in {\bnd,...,\bend} {
+                                        \ifthenelse{#1=6}{
+                                            \pgfmathsetmacro{\idx}{int(mod(\j-2+\lid-(\lid==2), \curn)+1)}
+                                        }{}
+                                        \ifthenelse{#1=8}{
+                                            \pgfmathsetmacro{\idx}{int(mod(\j-1*(\lid==1)+6*(\lid>1), \curn)+1)}
+                                        }{}
+
+                                        \pgfmathsetmacro{\curset}{bin(\ctm)}
+                                        \xdef\seen{\seen,\curset}
+                                        \xdef\poli{\poli,\lid}
+                                        \xdef\polc{\polc,\idx}
+                                        \pgfmathsetmacro{\ctmm}{int(2*\ctm > \mxn ? mod(2*\ctm + 1,\mxn+1) : 2*\ctm)}
+                                        \global\let\ctm=\ctmm
+                                    }
+                                }
+                                \foreach\lid in {1,...,\nly}{
+                                    \pgfmathsetmacro{\level}{int(\lid>ceil(#1/4)?1+\lid-ceil(#1/4):\lid)}
+                                    \pgfmathsetmacro{\level}{#1==6&&\lid==3?1.8:\level}
+                                    \pgfmathsetmacro{\level}{#1==6&&\lid==1?1.07:\level}
+                                    \pgfmathsetmacro{\curn}{int((\lid==ceil(#1/4)&&not(\rotsh))
+                                        || (\lid==\nly && \rotsh)?#1/2:#1)}
+                                    \pgfmathsetmacro{\rott}{int((\lid>ceil(#1/4)&&\rotsh?180/#1:0)
+                                    + (not(\rotsh)&&\lid>1?-180/#1:0)
+                                    + (not(\rotsh)&&\curn!=#1?360/#1:0))}
+                                    \pgfmathsetmacro{\rott}{int(\lid==1?\rott-#1/2:\rott)}
+
+                                    \ifthenelse{\mode=1}{
+                                        \node[regular polygon,regular polygon sides=\curn,
+                                        minimum size=#1*\level*19pt-#1*3pt,
+                                        rotate=\rot+\rott](p\lid){};
+                                    }{
+                                        \node[regular polygon, regular polygon sides=\curn,
+                                        minimum size=#1*\level*15pt-#1*3pt,
+                                        rotate=\rot+\rott](p\lid){};
+                                    }
+
+                                }
+                            }
                             \gdef\prsx{\@gobble}
                             \gdef\prsy{\@gobble}
-                            \def\cnt{0}
-                            \foreach\i[count=\j from 0] in {1,...,\tmo}{
-                                \ifthenelse{\j>0}{
-                                    \foreach\g in {1,...,\j}{
-                                        \pgfmathsetmacro{\cur}{int({\seen}[\g-1])}
-                                        \intersect{\inte}{#1}{\cur}{\strt}
-                                        \ifthenelse{\inte=0}{
-                                            \ldraw(o#1.corner \i)--(o#1.corner \g);
-                                            \xdef\prsx{\prsx,\i}
-                                            \xdef\prsy{\prsy,\g}
-                                            \pgfmathsetmacro{\gnr}{int(\cnt+1)}
-                                            \global\let\cnt=\gnr
-                                        }{}
+                            \foreach\i in {1,...,\ncnt}{
+                                \pgfmathsetmacro{\curseta}{{\seen}[\i-1])}
+                                \pgfmathsetmacro{\cplia}{{\poli}[\i-1])}
+                                \pgfmathsetmacro{\cplca}{{\polc}[\i-1])}
+                                \foreach\j in {\i,...,\ncnt}{
+                                    \pgfmathsetmacro{\cursetb}{{\seen}[\j-1])}
+                                    \pgfmathsetmacro{\cplib}{{\poli}[\j-1])}
+                                    \pgfmathsetmacro{\cplcb}{{\polc}[\j-1])}
+                                    \intersect{\inte}{#1}{0b\curseta}{0b\cursetb}
+                                    \ifthenelse{\inte=0}{
+                                        \ldraw(p\cplia.corner \cplca)--(p\cplib.corner \cplcb);
+                                        \xdef\prsx{\prsx,\i}
+                                        \xdef\prsy{\prsy,\j}
+                                    }{}
+                                }
+                            }
+                            \foreach\k in {1,...,\ecnt}{
+                                \pgfmathsetmacro{\i}{{\prsx}[\k-1])}
+                                \pgfmathsetmacro{\j}{{\prsy}[\k-1])}
+                                \pgfmathsetmacro{\cplia}{{\poli}[\i-1])}
+                                \pgfmathsetmacro{\cplca}{{\polc}[\i-1])}
+                                \pgfmathsetmacro{\cplib}{{\poli}[\j-1])}
+                                \pgfmathsetmacro{\cplcb}{{\polc}[\j-1])}
+                                \draw[thick](p\cplia.corner \cplca)--(p\cplib.corner \cplcb);
+                            }
+
+
+                            \foreach\i in {1,...,\ncnt}{
+                                \pgfmathsetmacro{\pli}{{\poli}[\i-1])}
+                                \pgfmathsetmacro{\plc}{{\polc}[\i-1])}
+                                \pgfmathsetmacro{\curset}{{\seen}[\i-1])}
+                                \pic[style=1\mode] at (p\pli.corner \plc){kneserset=#1/\curset};
+                            }
+                            }{
+                                \ifthenelse{#1>2}{
+                                    \pgfmathsetmacro{\tmo}{int(binom(#1,#2))}
+                                    \ifthenelse{\mode=1}{
+                                        \node[regular polygon,regular polygon sides=\tmo,minimum size=\tmo*20pt](o#1){};
+                                    }{
+                                        \node[regular polygon,regular polygon sides=\tmo,minimum size=\tmo*10pt](o#1){};
                                     }
-                                }{}
+                                    \def\strt{0}
+                                    \foreach\d in {1,...,#2}{
+                                        \pgfmathsetmacro{\ttt}{int(2*\strt+1)}
+                                        \global\let\strt=\ttt
+                                    }
+                                    \gdef\seen{\@gobble}
+                                    \gdef\prsx{\@gobble}
+                                    \gdef\prsy{\@gobble}
+                                    \def\cnt{0}
+                                    \foreach\i[count=\j from 0] in {1,...,\tmo}{
+                                        \ifthenelse{\j>0}{
+                                            \foreach\g in {1,...,\j}{
+                                                \pgfmathsetmacro{\cur}{int({\seen}[\g-1])}
+                                                \intersect{\inte}{#1}{\cur}{\strt}
+                                                \ifthenelse{\inte=0}{
+                                                    \ldraw(o#1.corner \i)--(o#1.corner \g);
+                                                    \xdef\prsx{\prsx,\i}
+                                                    \xdef\prsy{\prsy,\g}
+                                                    \pgfmathsetmacro{\gnr}{int(\cnt+1)}
+                                                    \global\let\cnt=\gnr
+                                                }{}
+                                            }
+                                        }{}
 
                                 \xdef\seen{\seen,\strt}
                                 \numnext{\tstrt}{#1}{\strt}
@@ -468,43 +633,8 @@
                                 \pic[style=1\mode] at (o#1.corner \i) {kneserset=#1/\cur};
                             }
                         }{}
+                    }
                         }
-                        \ifthenelse{#2=2}{
-                            \ifthenelse{#1=5}{
-                                \ifthenelse{\mode=1}{
-                                    \node[regular polygon,regular polygon sides=#1,minimum size=#1*35pt](o#1){};
-                                    \node[regular polygon,regular polygon sides=#1,minimum size=#1*16pt](p#1){};
-                                    }{
-                                    \node[regular polygon,regular polygon sides=#1,minimum size=#1*27pt](o#1){};
-                                    \node[regular polygon,regular polygon sides=#1,minimum size=#1*12pt](p#1){};
-                                }
-                                \foreach \i[count=\j from 1] in {1,...,5} {
-                                    \pgfmathsetmacro{\l}{int(mod(\j+3,5)+1)}
-                                    \pgfmathsetmacro{\k}{int(mod(\j+1,5)+1)}
-                                    \pgfmathsetmacro{\g}{int(mod(\j+2,5)+1)}
-                                    \ldraw(o#1.corner \j)--(p#1.corner \j);
-                                    \ldraw(o#1.corner \j)--(o#1.corner \l);
-                                    \ldraw(p#1.corner \j)--(p#1.corner \k);
-                                    \ldraw(p#1.corner \j)--(p#1.corner \g);
-                                }
-                                \foreach \i[count=\j from 1] in {1,...,5} {
-                                    \pgfmathsetmacro{\l}{int(mod(\j+3,5)+1)}
-                                    \pgfmathsetmacro{\k}{int(mod(\j+1,5)+1)}
-                                    \pgfmathsetmacro{\g}{int(mod(\j+2,5)+1)}
-                                    \draw[thick] (o#1.corner \j) -- (p#1.corner \j);
-                                    \draw[thick] (o#1.corner \j) -- (o#1.corner \l);
-                                    \draw[thick] (p#1.corner \j) -- (p#1.corner \k);
-                                    \draw[thick] (p#1.corner \j) -- (p#1.corner \g);
-                                }
-
-                                \foreach \i[count=\j from 1] in {1001,10100,1010,101,10010} {
-                                    \pic[style=1\mode] at (o#1.corner \j) {kneserset=#1/\i};
-                                }
-                                \foreach \i[count=\j from 1] in {110,11,10001,11000,1100} {
-                                    \pic[style=1\mode] at (p#1.corner \j) {kneserset=#1/\i};
-                                }
-                            }{}
-                        }{}
                     }}}
                 }
             }
