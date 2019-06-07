@@ -554,13 +554,13 @@
                             \gdef\prsx{\@gobble}
                             \gdef\prsy{\@gobble}
                             \foreach\i in {1,...,\ncnt}{
-                                \pgfmathsetmacro{\curseta}{{\seen}[\i-1])}
-                                \pgfmathsetmacro{\cplia}{{\poli}[\i-1])}
-                                \pgfmathsetmacro{\cplca}{{\polc}[\i-1])}
+                                \pgfmathsetmacro{\curseta}{int({\seen}[\i-1])}
+                                \pgfmathsetmacro{\cplia}{int({\poli}[\i-1])}
+                                \pgfmathsetmacro{\cplca}{int({\polc}[\i-1])}
                                 \foreach\j in {\i,...,\ncnt}{
-                                    \pgfmathsetmacro{\cursetb}{{\seen}[\j-1])}
-                                    \pgfmathsetmacro{\cplib}{{\poli}[\j-1])}
-                                    \pgfmathsetmacro{\cplcb}{{\polc}[\j-1])}
+                                    \pgfmathsetmacro{\cursetb}{int({\seen}[\j-1])}
+                                    \pgfmathsetmacro{\cplib}{int({\poli}[\j-1])}
+                                    \pgfmathsetmacro{\cplcb}{int({\polc}[\j-1])}
                                     \intersect{\inte}{#1}{0b\curseta}{0b\cursetb}
                                     \ifthenelse{\inte=0}{
                                         \ldraw(p\cplia.corner \cplca)--(p\cplib.corner \cplcb);
@@ -570,20 +570,20 @@
                                 }
                             }
                             \foreach\k in {1,...,\ecnt}{
-                                \pgfmathsetmacro{\i}{{\prsx}[\k-1])}
-                                \pgfmathsetmacro{\j}{{\prsy}[\k-1])}
-                                \pgfmathsetmacro{\cplia}{{\poli}[\i-1])}
-                                \pgfmathsetmacro{\cplca}{{\polc}[\i-1])}
-                                \pgfmathsetmacro{\cplib}{{\poli}[\j-1])}
-                                \pgfmathsetmacro{\cplcb}{{\polc}[\j-1])}
+                                \pgfmathsetmacro{\i}{int({\prsx}[\k-1])}
+                                \pgfmathsetmacro{\j}{int({\prsy}[\k-1])}
+                                \pgfmathsetmacro{\cplia}{int({\poli}[\i-1])}
+                                \pgfmathsetmacro{\cplca}{int({\polc}[\i-1])}
+                                \pgfmathsetmacro{\cplib}{int({\poli}[\j-1])}
+                                \pgfmathsetmacro{\cplcb}{int({\polc}[\j-1])}
                                 \draw[thick](p\cplia.corner \cplca)--(p\cplib.corner \cplcb);
                             }
 
 
                             \foreach\i in {1,...,\ncnt}{
-                                \pgfmathsetmacro{\pli}{{\poli}[\i-1])}
-                                \pgfmathsetmacro{\plc}{{\polc}[\i-1])}
-                                \pgfmathsetmacro{\curset}{{\seen}[\i-1])}
+                                \pgfmathsetmacro{\pli}{int({\poli}[\i-1])}
+                                \pgfmathsetmacro{\plc}{int({\polc}[\i-1])}
+                                \pgfmathsetmacro{\curset}{int({\seen}[\i-1])}
                                 \pic[style=1\mode] at (p\pli.corner \plc){kneserset=#1/\curset};
                             }
                             }{
@@ -624,8 +624,8 @@
                             }
                             \ifthenelse{\cnt>0}{
                             \foreach\i in {1,...,\cnt}{
-                                \pgfmathsetmacro{\curx}{{\prsx}[\i-1])}
-                                \pgfmathsetmacro{\cury}{{\prsy}[\i-1])}
+                                \pgfmathsetmacro{\curx}{int({\prsx}[\i-1])}
+                                \pgfmathsetmacro{\cury}{int({\prsy}[\i-1])}
                                 \draw[thick](o#1.corner \curx)--(o#1.corner \cury);
                             }}{}
                             \foreach\i[count=\j from 0] in {1,...,\tmo}{
