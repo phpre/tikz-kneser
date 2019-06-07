@@ -223,11 +223,13 @@
                             rounded corners=5pt] (nn) at (0,-#1*1pt-14pt) {$\{\res\}$};
                         \fi
                     }{}
+                    \ifthenelse{\bg<3}{
                     \ifx\tikz@fillcolor\pgfutil@empty
-                        \node[circle,minimum size=#1*2pt+16pt,fill=white] (cc) {};
-                    \else
-                        \node[fill,circle,minimum size=#1*2pt+16pt] (cc) {};
-                    \fi
+                            \node[circle,minimum size=#1*2pt+16pt,fill=white] (cc) {};
+                        \else
+                            \node[fill,circle,minimum size=#1*2pt+16pt] (cc) {};
+                        \fi
+                    }{}
                     \ifthenelse{\bg=1}{
                         \node[solid,circle,minimum size=#1*2pt+14pt,draw,thick]  {};
                     }{}
@@ -288,6 +290,44 @@
     \fi
 }
 
+\pgfdeclaredecoration{ignore}{final} {
+    \state{final}{}
+}
+\pgfdeclaremetadecoration{middle}{initial}{
+    \state{initial}[
+        width={(\the\pgfdecorationsegmentlength*1.075pt+3pt)},
+        next state=middle
+    ]
+    {\decoration{moveto}}
+
+    \state{middle}[
+        width={1.5pt},
+        next state=final
+    ]
+    {\decoration{curveto}}
+
+    \state{final}
+    {\decoration{ignore}}
+}
+\pgfdeclaremetadecoration{midd}{initial}{
+    \state{initial}[
+        width={(\the\pgfdecorationsegmentlength*1.075pt+6.5pt)},
+        next state=middle
+    ]
+    {\decoration{moveto}}
+
+    \state{middle}[
+        width={3.6pt},
+        next state=final
+    ]
+    {\decoration{curveto}}
+
+    \state{final}
+    {\decoration{ignore}}
+}
+\tikzset{fix borders/.style={decoration={middle},decorate, segment length=#1}}
+\tikzset{fix corner/.style={decoration={midd},decorate, segment length=#1}}
+
 \tikzset{
     % Draw Kneser Graph K(n,k)
     % #1 n
@@ -344,6 +384,9 @@
 
                             \pic[style=1\mode] at (1\i) {kneserset=#1/\jj};
                             \pic[style=1\mode] at (2\i) {kneserset=#1/\jd};
+
+                            \draw[thick,fix borders=#1] (1\i)--(2\i);
+                            \draw[thick,fix borders=#1] (2\i)--(1\i);
 
                             \numnext{\tstrt}{#1}{\strt}
                             \global\let\strt=\tstrt
@@ -420,6 +463,13 @@
                                 \pic[style=1\mode] at (p#1.corner \i) {kneserset=#1/\tmp};
                                 \global\edef\tmp{\tp0}
                             }
+
+                            \foreach \i in {#1,...,1} { \foreach \j in {#1,...,1} {
+                                    \ifthenelse{\i=\j}{}{
+                                        \draw[thick,fix corner=#1](p#1.corner \i)--(p#1.corner \j);
+                                        \draw[thick,fix corner=#1](p#1.corner \j)--(p#1.corner \i);
+                                    }
+                            }}
                         }{
                         \ifthenelse{#2=2}{
                             \pgfmathsetmacro{\nmk}{int(#1 - #2)}
@@ -586,6 +636,18 @@
                                 \pgfmathsetmacro{\curset}{{\seen}[\i-1])}
                                 \pic[style=1\mode] at (p\pli.corner \plc){kneserset=#1/\curset};
                             }
+                            \foreach\k in {1,...,\ecnt}{
+                                \pgfmathsetmacro{\i}{{\prsx}[\k-1])}
+                                \pgfmathsetmacro{\j}{{\prsy}[\k-1])}
+                                \pgfmathsetmacro{\cplia}{{\poli}[\i-1])}
+                                \pgfmathsetmacro{\cplca}{{\polc}[\i-1])}
+                                \pgfmathsetmacro{\cplib}{{\poli}[\j-1])}
+                                \pgfmathsetmacro{\cplcb}{{\polc}[\j-1])}
+                                \draw[thick,fix corner=#1](p\cplia.corner \cplca)--(p\cplib.corner \cplcb);
+                                \draw[thick,fix corner=#1](p\cplib.corner \cplcb)--(p\cplia.corner \cplca);
+                            }
+
+
                             }{
                                 \ifthenelse{#1>2}{
                                     \pgfmathsetmacro{\tmo}{int(binom(#1,#2))}
@@ -624,14 +686,22 @@
                             }
                             \ifthenelse{\cnt>0}{
                             \foreach\i in {1,...,\cnt}{
-                                \pgfmathsetmacro{\curx}{{\prsx}[\i-1])}
-                                \pgfmathsetmacro{\cury}{{\prsy}[\i-1])}
+                                \pgfmathsetmacro{\curx}{{\prsx}[\i-1]}
+                                \pgfmathsetmacro{\cury}{{\prsy}[\i-1]}
                                 \draw[thick](o#1.corner \curx)--(o#1.corner \cury);
                             }}{}
                             \foreach\i[count=\j from 0] in {1,...,\tmo}{
                                 \pgfmathsetmacro{\cur}{bin({\seen}[\j])}
                                 \pic[style=1\mode] at (o#1.corner \i) {kneserset=#1/\cur};
                             }
+                            \ifthenelse{\cnt>0}{
+                            \foreach\i in {1,...,\cnt}{
+                                \pgfmathsetmacro{\curx}{{\prsx}[\i-1]}
+                                \pgfmathsetmacro{\cury}{{\prsy}[\i-1]}
+                                \draw[thick,fix corner=#1](o#1.corner \curx)--(o#1.corner \cury);
+                                \draw[thick,fix corner=#1](o#1.corner \cury)--(o#1.corner \curx);
+                            }}{}
+
                         }{}
                     }
                         }
