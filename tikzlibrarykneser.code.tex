@@ -162,6 +162,11 @@
     }%
 }
 
+\tikzset{vertex fill color/.store in=\@vfc,vertex fill color=black}
+\tikzset{vertex empty color/.store in=\@vec,vertex empty color=white}
+\tikzset{vertex/.style={circle, fill, inner sep=1pt, outer sep=1.3pt}}
+
+
 \tikzset{style/.store in=\sty,style=10}
     %   x0/x1/x2/x3 display mode: set/both/string/dot(without sets)
     %   0y/1y/2y background mode: empty/[fill color]/(unused)
@@ -187,36 +192,10 @@
                    \ifthenelse{\mode>0}{
                         \numidx{\res}{#1}{0b#2}
                         \ifx\tikz@fillcolor\pgfutil@empty
-%                            \node[fill=white,inner sep=2pt,%minimum width=#1*2pt+16pt,
-%                            rounded corners=5pt] (nn) at (0,-#1*1pt-14pt) {$\{\res\}$};
-%                            \fill[white]
-%                            (nn.east)
-%                            [rounded corners=5pt]
-%                            -- (nn.north east)
-%                            [sharp corners]
-%                            -- (tangent cs:node=cc,point={(nn.north east)},solution=1)
-%                            -- (tangent cs:node=cc,point={(nn.north west)},solution=2)
-%                            [rounded corners=5pt]
-%                            -- (nn.north west)
-%                            [sharp corners]
-%                            -- (nn.west) -- cycle;
-                            \node[fill=white,inner sep=2pt,%minimum width=#1*2pt+16pt,
+                            \node[fill=white,inner sep=2pt,
                             rounded corners=5pt] (nn) at (0,-#1*1pt-14pt) {$\{\res\}$};
                         \else
-%                            \node[draw=\tikz@fillcolor,fill,inner sep=1.5pt, minimum width=
-%                            #1*2pt+16pt, rounded corners=5pt] (nn) at (0,-#1*1pt-14pt) {$\{\res\}$};
-%                            \fill
-%                            (nn.east)
-%                            [rounded corners=5pt]
-%                            -- (nn.north east)
-%                            [sharp corners]
-%                            -- (tangent cs:node=cc,point={(nn.north east)},solution=1)
-%                            -- (tangent cs:node=cc,point={(nn.north west)},solution=2)
-%                            [rounded corners=5pt]
-%                            -- (nn.north west)
-%                            [sharp corners]
-%                            -- (nn.west) -- cycle;
-                            \node[fill,inner sep=2pt,%minimum width=#1*2pt+16pt,
+                            \node[fill,inner sep=2pt,
                             rounded corners=5pt] (nn) at (0,-#1*1pt-14pt) {$\{\res\}$};
                         \fi
                     }{}
@@ -235,9 +214,9 @@
                         \ifthenelse{#1=0}{}{
                             \pgfmathsetmacro{\x}{{\arr}[0]}
                             \ifthenelse{\x=1}{
-                                \node[solid,black,draw,fill=black,circle,inner sep=1.5pt] (1) at (0,0) {};
+                                \node[solid,\@vfc,draw,fill=\@vfc,circle,inner sep=1.5pt] (1) at (0,0) {};
                             }{
-                                \node[solid,black,draw,fill=white,circle,inner sep=1.5pt] (1) at (0,0) {};
+                                \node[solid,\@vfc,draw,fill=\@vec,circle,inner sep=1.5pt] (1) at (0,0) {};
                             }
                         }
                     }{
@@ -245,9 +224,9 @@
                             \pgfmathsetmacro{\x}{{\arr}[\i-1]}
                             \pgfmathsetmacro{\xx}{pow(-1,\i)*3}
                             \ifthenelse{\x=1}{
-                                \node[solid,black,draw,fill=black,circle,inner sep=1.5pt](\i) at (\xx*1pt,0) {};
+                                \node[solid,\@vfc,draw,fill=\@vfc,circle,inner sep=1.5pt](\i) at (\xx*1pt,0) {};
                             }{
-                                \node[solid,black,draw,fill=white,circle,inner sep=1.5pt](\i)at (\xx*1pt,0) {};
+                                \node[solid,\@vfc,draw,fill=\@vec,circle,inner sep=1.5pt](\i)at (\xx*1pt,0) {};
                             }
                         }
                     }
@@ -257,10 +236,10 @@
                     \foreach \i in {1,...,#1} {
                         \pgfmathsetmacro{\x}{{\arr}[\i-1]}
                         \ifthenelse{\x=1}{
-                            \node[solid,black,draw,fill=black,circle,inner sep=1.5pt]
+                            \node[solid,\@vfc,draw,fill=\@vfc,circle,inner sep=1.5pt]
                                 (\i) at (poly#1.corner \i) {};
                         }{
-                            \node[solid,black,draw,fill=white,circle,inner sep=1.5pt] (\i)
+                            \node[solid,\@vfc,draw,fill=\@vec,circle,inner sep=1.5pt] (\i)
                                 at (poly#1.corner \i) {};
                         }
                     }
@@ -285,6 +264,15 @@
     \fi
 }
 
+\def\lnode(#1);{
+    \ifx\tikz@fillcolor\pgfutil@empty
+        \node[vertex,\@vfc,draw=white,line width=1pt] at (#1) {};
+    \else
+        \node[vertex,\@vfc,draw=\tikz@fillcolor,line width=1pt] at (#1) {};
+    \fi
+}
+
+
 \tikzset{
     % Draw Kneser Graph K(n,k)
     % #1 n
@@ -299,11 +287,19 @@
             \pgfmathsetmacro{\diff}{int(#1-#2)}
             \ifthenelse{#2=0}{
                 % 0 element subsets ~> boring
-                \pic at (0,0) {kneserset=#1/0};
+                \ifthenelse{\mode=3}{
+                    \lnode(0,0);
+                }{
+                    \pic at (0,0) {kneserset=#1/0};
+                }
             }{
                 \ifthenelse{\diff=0}{
                     \pgfmathsetmacro{\all}{bin(int(pow(2,(#1+1))-1))}
-                    \pic at (0,0) {kneserset=#1/\all};
+                    \ifthenelse{\mode=3}{
+                        \lnode(0,0);
+                    }{
+                        \pic at (0,0) {kneserset=#1/\all};
+                    }
                 }{
                     \pgfmathsetmacro{\db}{int(2*#2)}
                     \pgfmathsetmacro{\all}{int(pow(2,(#1+4))-1)}
@@ -339,8 +335,13 @@
                             \pgfmathsetmacro{\jj}{bin(int(\strt))}
                             \pgfmathsetmacro{\jd}{bin(int(\all-\strt))}
 
-                            \pic[style=1\mode] at (1\i) {kneserset=#1/\jj};
-                            \pic[style=1\mode] at (2\i) {kneserset=#1/\jd};
+                            \ifthenelse{\mode=3}{
+                                \lnode(1\i);
+                                \lnode(2\i);
+                            }{
+                                \pic[style=1\mode] at (1\i) {kneserset=#1/\jj};
+                                \pic[style=1\mode] at (2\i) {kneserset=#1/\jd};
+                            }
 
                             \numnext{\tstrt}{#1}{\strt}
                             \global\let\strt=\tstrt
@@ -358,7 +359,11 @@
                         \foreach \i[count=\j from 1] in {#1,...,1} {
                             \edef\tp{\tmp}
                             \pgfmathsetmacro{\jd}{bin(int(\all-0b\tmp))}
-                            \pic[style=1\mode] at (p#1.corner \i) {kneserset=#1/\jd};
+                            \ifthenelse{\mode=3}{
+                                \lnode(p#1.corner \i);
+                            }{
+                                \pic[style=1\mode] at (p#1.corner \i) {kneserset=#1/\jd};
+                            }
                             \global\edef\tmp{\tp0}
                         }
 
@@ -385,7 +390,12 @@
                             \pgfmathsetmacro{\ny}{(#1*2+\dis)*((\rem-1)/2 - mod(\i,\rem))}
 
                             \pgfmathsetmacro{\cur}{bin(\strt)}
-                            \pic at (\nx*1pt,\ny*1pt) {kneserset=#1/\cur};
+
+                            \ifthenelse{\mode=3}{
+                                \lnode(\nx*1pt,\ny*1pt);
+                            }{
+                                \pic at (\nx*1pt,\ny*1pt) {kneserset=#1/\cur};
+                            }
 
                             \numnext{\tstrt}{#1}{\strt}
                             \global\let\strt=\tstrt
@@ -414,7 +424,12 @@
                             \def\tmp{1}
                             \foreach \i[count=\j from 1] in {#1,...,1} {
                                 \edef\tp{\tmp}
-                                \pic[style=1\mode] at (p#1.corner \i) {kneserset=#1/\tmp};
+
+                                \ifthenelse{\mode=3}{
+                                    \lnode(p#1.corner \i);
+                                }{
+                                    \pic[style=1\mode] at (p#1.corner \i) {kneserset=#1/\tmp};
+                                }
                                 \global\edef\tmp{\tp0}
                             }
                         }{
@@ -581,7 +596,12 @@
                                 \pgfmathsetmacro{\pli}{int({\poli}[\i-1])}
                                 \pgfmathsetmacro{\plc}{int({\polc}[\i-1])}
                                 \pgfmathsetmacro{\curset}{int({\seen}[\i-1])}
-                                \pic[style=1\mode] at (p\pli.corner \plc){kneserset=#1/\curset};
+
+                                \ifthenelse{\mode=3}{
+                                    \lnode(p\pli.corner \plc);
+                                }{
+                                    \pic[style=1\mode] at (p\pli.corner \plc){kneserset=#1/\curset};
+                                }
                             }
                             }{
                                 \ifthenelse{#1>2}{
@@ -627,7 +647,12 @@
                             }}{}
                             \foreach\i[count=\j from 0] in {1,...,\tmo}{
                                 \pgfmathsetmacro{\cur}{bin({\seen}[\j])}
-                                \pic[style=1\mode] at (o#1.corner \i) {kneserset=#1/\cur};
+
+                                \ifthenelse{\mode=3}{
+                                    \lnode(o#1.corner \i);
+                                }{
+                                    \pic[style=1\mode] at (o#1.corner \i) {kneserset=#1/\cur};
+                                }
                             }
                         }{}
                     }
