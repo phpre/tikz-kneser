@@ -514,7 +514,9 @@
                                     }{
                                         \ifthenelse{\rotfix=1}{
                                             \pgfmathsetmacro{\rott}{int(#1>5&&\lid==1?-#1/2:0)}
-                                        }{}
+                                        }{
+                                            \pgfmathsetmacro{\rott}{int(0)}
+                                        }
                                         \ifthenelse{\mode=1}{
                                             \node[regular polygon,regular polygon sides=#1,
                                             minimum size=#1*\ld*19pt-#1*3pt,
