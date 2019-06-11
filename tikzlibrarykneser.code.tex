@@ -164,13 +164,18 @@
 
 \tikzset{vertex fill color/.store in=\@vfc,vertex fill color=black}
 \tikzset{vertex empty color/.store in=\@vec,vertex empty color=white}
-\tikzset{vertex/.style={circle, fill, inner sep=1pt, outer sep=1.3pt}}
+\tikzset{vertex/.style={circle, fill, inner sep=1.3pt, outer sep=1.8pt}}
 
 
 \tikzset{style/.store in=\sty,style=10}
     %   x0/x1/x2/x3 display mode: set/both/string/dot(without sets)
     %   0y/1y/2y background mode: empty/[fill color]/(unused)
 
+\tikzset{edge fix/.store in=\rotfix,edge fix=0}
+    % How to fix hidden edges:
+    % 0: none
+    % 1: use rotation by a small angle
+    % 2: use bent edges
 
 \tikzset{
     % Kneser set visualization
@@ -263,6 +268,15 @@
         \draw[thick,double=black,draw=\tikz@fillcolor] (#1) -- (#2);
     \fi
 }
+\def\bdraw(#1)--(#2);{
+    \ifx\tikz@fillcolor\pgfutil@empty
+        \draw[thick] (#1) to[bend left] (#2);
+    \else
+        \draw[thick,double=black,draw=\tikz@fillcolor] (#1) to[bend left] (#2);
+    \fi
+}
+
+
 
 \def\lnode(#1);{
     \ifx\tikz@fillcolor\pgfutil@empty
@@ -304,7 +318,6 @@
                     \pgfmathsetmacro{\db}{int(2*#2)}
                     \pgfmathsetmacro{\all}{int(pow(2,(#1+4))-1)}
                     \ifthenelse{\db=#1}{
-                        %\pgfmathsetmacro{\tmo}{int(factorial(#1)/(factorial(#1-#2)*factorial(#2)*2)-1)}
                         \pgfmathsetmacro{\tmo}{int(binom(#1,#2)/2-1)}
                         \pgfmathsetmacro{\tmr}{int(ceil(sqrt(\tmo*2)))}
 
@@ -499,7 +512,9 @@
                                         \pgfmathsetmacro{\tm}{int(\nrem - #1)}
                                         \global\let\nrem=\tm
                                     }{
-                                        \pgfmathsetmacro{\rott}{int(#1>5&&\lid==1?-#1/2:0)}
+                                        \ifthenelse{\rotfix=1}{
+                                            \pgfmathsetmacro{\rott}{int(#1>5&&\lid==1?-#1/2:0)}
+                                        }{}
                                         \ifthenelse{\mode=1}{
                                             \node[regular polygon,regular polygon sides=#1,
                                             minimum size=#1*\ld*19pt-#1*3pt,
@@ -549,7 +564,9 @@
                                     \pgfmathsetmacro{\rott}{int((\lid>ceil(#1/4)&&\rotsh?180/#1:0)
                                     + (not(\rotsh)&&\lid>1?-180/#1:0)
                                     + (not(\rotsh)&&\curn!=#1?360/#1:0))}
-                                    \pgfmathsetmacro{\rott}{int(\lid==1?\rott-#1/2:\rott)}
+                                    \ifthenelse{\rotfix=1}{
+                                        \pgfmathsetmacro{\rott}{int(\lid==1?\rott-#1/2:\rott)}
+                                    }{}
 
                                     \ifthenelse{\mode=1}{
                                         \node[regular polygon,regular polygon sides=\curn,
@@ -575,7 +592,13 @@
                                     \pgfmathsetmacro{\cplcb}{int({\polc}[\j-1])}
                                     \intersect{\inte}{#1}{0b\curseta}{0b\cursetb}
                                     \ifthenelse{\inte=0}{
-                                        \ldraw(p\cplia.corner \cplca)--(p\cplib.corner \cplcb);
+                                        \pgfmathsetmacro{\hb}{\rotfix==2&&#1==6&&\cplia+\cplib==3
+                                        &&\cplia!=\cplib&&(isodd(\cplca))}
+                                        \ifthenelse{\hb=1}{
+                                            \bdraw(p\cplia.corner \cplca)--(p\cplib.corner \cplcb);
+                                        }{
+                                            \ldraw(p\cplia.corner \cplca)--(p\cplib.corner \cplcb);
+                                        }
                                         \xdef\prsx{\prsx,\i}
                                         \xdef\prsy{\prsy,\j}
                                     }{}
@@ -588,7 +611,17 @@
                                 \pgfmathsetmacro{\cplca}{int({\polc}[\i-1])}
                                 \pgfmathsetmacro{\cplib}{int({\poli}[\j-1])}
                                 \pgfmathsetmacro{\cplcb}{int({\polc}[\j-1])}
-                                \draw[thick](p\cplia.corner \cplca)--(p\cplib.corner \cplcb);
+%                                \draw[thick](p\cplia.corner \cplca)--(p\cplib.corner \cplcb);
+
+                                \pgfmathsetmacro{\hb}{\rotfix==2&&#1==6&&\cplia+\cplib==3
+                                &&\cplia!=\cplib&&(isodd(\cplca))}
+                                \ifthenelse{\hb=1}{
+                                    \draw[thick](p\cplia.corner \cplca) to[bend left]
+                                    (p\cplib.corner \cplcb);
+                                }{
+                                    \draw[thick](p\cplia.corner \cplca)--(p\cplib.corner \cplcb);
+                                }
+
                             }
 
 
