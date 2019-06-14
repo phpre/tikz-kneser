@@ -191,7 +191,7 @@
                     \numtxt{\arr}{#1}{0b#2}
                 }
                 \ifthenelse{\bg=0}{
-                    \node[circle,minimum size=#1*2pt+16pt]  {};
+                    \node[circle,minimum size=#1*2pt+16pt] () {};
                     \node[solid,circle,minimum size=#1*2pt+13pt,draw,thick]  {};
                 }{
                    \ifthenelse{\mode>0}{
@@ -205,9 +205,9 @@
                         \fi
                     }{}
                     \ifx\tikz@fillcolor\pgfutil@empty
-                        \node[circle,minimum size=#1*2pt+16pt,fill=white] (cc) {};
+                        \node[circle,minimum size=#1*2pt+16pt,fill=white] () {};
                     \else
-                        \node[fill,circle,minimum size=#1*2pt+16pt] (cc) {};
+                        \node[fill,circle,minimum size=#1*2pt+16pt] () {};
                     \fi
                     \ifthenelse{\bg=1}{
                         \node[solid,circle,minimum size=#1*2pt+14pt,draw,thick]  {};
@@ -252,9 +252,9 @@
             }{
                 \numidx{\res}{#1}{0b#2}
                 \ifx\tikz@fillcolor\pgfutil@empty
-                    \node[fill=white,inner sep=1.5pt,rounded corners=5pt] at (0,0) {$\{\res\}$};
+                    \node[fill=white,inner sep=1.5pt,rounded corners=5pt] () at (0,0) {$\{\res\}$};
                 \else
-                    \node[fill,inner sep=1.5pt,rounded corners=5pt] at (0,0) {$\{\res\}$};
+                    \node[fill,inner sep=1.5pt,rounded corners=5pt] () at (0,0) {$\{\res\}$};
                 \fi
             }
         }
