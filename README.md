@@ -83,6 +83,19 @@ which takes the length and the elements (as a bitstring) as arguments (and style
 ```
 ![](https://github.com/PH111P/tikz-kneser/blob/master/pics/kneserset.png)
 
+By the way, you may use the sets as nodes (which is kinda hacky and does look ugly if you use style `*1`, though):
+``` Tex
+\begin{tikzpicture}
+    \pic[white,fill=black] (a) {kneserset=5/10000};
+    \pic (b) at (-1.6,0) {kneserset=5/10111};
+    \pic (c) at (0,-1.6) {kneserset=5/1011};
+    \draw[-latex] (c) -- (a);
+    \draw[-latex] (b) -- (a);
+    \draw[-latex] (c) -- (b);
+\end{tikzpicture}
+```
+![](https://github.com/PH111P/tikz-kneser/blob/master/pics/kneserset2.png)
+
 Also check out the Kneser triangle (uncomment the last 3 lines if you like to see your TeX installation struggle):
 ``` Tex
 \begin{tikzpicture}
