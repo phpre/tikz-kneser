@@ -278,11 +278,11 @@
 
 
 
-\def\lnode(#1);{
+\def\lnode(#1)(#2);{
     \ifx\tikz@fillcolor\pgfutil@empty
-        \node[vertex,\@vfc,draw=white,line width=1pt] at (#1) {};
+        \node[vertex,\@vfc,draw=white,line width=1pt] (#1) at (#2) {};
     \else
-        \node[vertex,\@vfc,draw=\tikz@fillcolor,line width=1pt] at (#1) {};
+        \node[vertex,\@vfc,draw=\tikz@fillcolor,line width=1pt] (#1) at (#2) {};
     \fi
 }
 
@@ -302,17 +302,18 @@
             \ifthenelse{#2=0}{
                 % 0 element subsets ~> boring
                 \ifthenelse{\mode=3}{
-                    \lnode(0,0);
+                    \lnode(0)(0,0);
                 }{
-                    \pic at (0,0) {kneserset=#1/0};
+                    \pic (0) at (0,0) {kneserset=#1/0};
                 }
             }{
                 \ifthenelse{\diff=0}{
                     \pgfmathsetmacro{\all}{bin(int(pow(2,(#1+1))-1))}
+                    \pgfmathsetmacro{\alll}{int(pow(2,(#1+1))-1)}
                     \ifthenelse{\mode=3}{
-                        \lnode(0,0);
+                        \lnode(\alll)(0,0);
                     }{
-                        \pic at (0,0) {kneserset=#1/\all};
+                        \pic at (0,0) (\alll) {kneserset=#1/\all};
                     }
                 }{
                     \pgfmathsetmacro{\db}{int(2*#2)}
@@ -347,13 +348,15 @@
 
                             \pgfmathsetmacro{\jj}{bin(int(\strt))}
                             \pgfmathsetmacro{\jd}{bin(int(\all-\strt))}
+                            \pgfmathsetmacro{\jji}{(int(\strt))}
+                            \pgfmathsetmacro{\jdi}{(int(\all-\strt))}
 
                             \ifthenelse{\mode=3}{
-                                \lnode(1\i);
-                                \lnode(2\i);
+                                \lnode(\jji)(1\i);
+                                \lnode(\jdi)(2\i);
                             }{
-                                \pic[style=1\mode] at (1\i) {kneserset=#1/\jj};
-                                \pic[style=1\mode] at (2\i) {kneserset=#1/\jd};
+                                \pic[style=1\mode] (\jji) at (1\i) {kneserset=#1/\jj};
+                                \pic[style=1\mode] (\jdi) at (2\i) {kneserset=#1/\jd};
                             }
 
                             \numnext{\tstrt}{#1}{\strt}
@@ -372,10 +375,11 @@
                         \foreach \i[count=\j from 1] in {#1,...,1} {
                             \edef\tp{\tmp}
                             \pgfmathsetmacro{\jd}{bin(int(\all-0b\tmp))}
+                            \pgfmathsetmacro{\jdi}{int(\all-0b\tmp)}
                             \ifthenelse{\mode=3}{
-                                \lnode(p#1.corner \i);
+                                \lnode(\jdi)(p#1.corner \i);
                             }{
-                                \pic[style=1\mode] at (p#1.corner \i) {kneserset=#1/\jd};
+                                \pic[style=1\mode] (\jdi) at (p#1.corner \i) {kneserset=#1/\jd};
                             }
                             \global\edef\tmp{\tp0}
                         }
@@ -405,9 +409,9 @@
                             \pgfmathsetmacro{\cur}{bin(\strt)}
 
                             \ifthenelse{\mode=3}{
-                                \lnode(\nx*1pt,\ny*1pt);
+                                \lnode(\strt)(\nx*1pt,\ny*1pt);
                             }{
-                                \pic at (\nx*1pt,\ny*1pt) {kneserset=#1/\cur};
+                                \pic (\strt) at (\nx*1pt,\ny*1pt) {kneserset=#1/\cur};
                             }
 
                             \numnext{\tstrt}{#1}{\strt}
@@ -437,11 +441,12 @@
                             \def\tmp{1}
                             \foreach \i[count=\j from 1] in {#1,...,1} {
                                 \edef\tp{\tmp}
+                                \pgfmathsetmacro{\tmpint}{int(0b\tmp)}
 
                                 \ifthenelse{\mode=3}{
-                                    \lnode(p#1.corner \i);
+                                    \lnode(\tmpint)(p#1.corner \i);
                                 }{
-                                    \pic[style=1\mode] at (p#1.corner \i) {kneserset=#1/\tmp};
+                                    \pic[style=1\mode] (\tmpint) at (p#1.corner \i) {kneserset=#1/\tmp};
                                 }
                                 \global\edef\tmp{\tp0}
                             }
@@ -631,11 +636,13 @@
                                 \pgfmathsetmacro{\pli}{int({\poli}[\i-1])}
                                 \pgfmathsetmacro{\plc}{int({\polc}[\i-1])}
                                 \pgfmathsetmacro{\curset}{int({\seen}[\i-1])}
+                                \pgfmathsetmacro{\curint}{int({\seen}[\i-1])}
+                                \pgfmathsetmacro{\curint}{int(0b\curint)}
 
                                 \ifthenelse{\mode=3}{
-                                    \lnode(p\pli.corner \plc);
+                                    \lnode(\curint)(p\pli.corner \plc);
                                 }{
-                                    \pic[style=1\mode] at (p\pli.corner \plc){kneserset=#1/\curset};
+                                    \pic[style=1\mode] (\curint) at (p\pli.corner \plc){kneserset=#1/\curset};
                                 }
                             }
                             }{
@@ -682,11 +689,12 @@
                             }}{}
                             \foreach\i[count=\j from 0] in {1,...,\tmo}{
                                 \pgfmathsetmacro{\cur}{bin({\seen}[\j])}
+                                \pgfmathsetmacro{\curint}{int({\seen}[\j])}
 
                                 \ifthenelse{\mode=3}{
-                                    \lnode(o#1.corner \i);
+                                    \lnode(\curint)(o#1.corner \i);
                                 }{
-                                    \pic[style=1\mode] at (o#1.corner \i) {kneserset=#1/\cur};
+                                    \pic[style=1\mode] (\curint) at (o#1.corner \i) {kneserset=#1/\cur};
                                 }
                             }
                         }{}
