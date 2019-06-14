@@ -164,7 +164,7 @@
 
 \tikzset{vertex fill color/.store in=\@vfc,vertex fill color=black}
 \tikzset{vertex empty color/.store in=\@vec,vertex empty color=white}
-\tikzset{vertex/.style={circle, fill, inner sep=1.3pt, outer sep=1.8pt}}
+\tikzset{kvertex/.style={circle, fill, inner sep=1.3pt, outer sep=1.8pt}}
 
 
 \tikzset{style/.store in=\sty,style=10}
@@ -280,9 +280,9 @@
 
 \def\lnode(#1)(#2);{
     \ifx\tikz@fillcolor\pgfutil@empty
-        \node[vertex,\@vfc,draw=white,line width=1pt] (#1) at (#2) {};
+        \node[kvertex,\@vfc,draw=white,line width=1pt] (#1) at (#2) {};
     \else
-        \node[vertex,\@vfc,draw=\tikz@fillcolor,line width=1pt] (#1) at (#2) {};
+        \node[kvertex,\@vfc,draw=\tikz@fillcolor,line width=1pt] (#1) at (#2) {};
     \fi
 }
 
