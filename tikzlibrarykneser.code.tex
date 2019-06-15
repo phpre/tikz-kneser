@@ -679,6 +679,127 @@
                 }{}
             }{}
 
+            % K(n, 3), n = 7
+            \ifthenelse{\done<1}{
+                % 5, 7, 9 1/3, 12, 15, 18 1/4 rings
+                \pgfmathsetmacro{\sevthr}{#1==7 && #2==3}
+                \gdef\seen{\@gobble}
+                \gdef\poli{\@gobble}
+                \gdef\polc{\@gobble}
+                \pgfmathsetmacro{\nmk}{int(#1 - #2)}
+                \pgfmathsetmacro{\ncnt}{int(binom(#1,#2))}
+                \pgfmathsetmacro{\ecnt}{int(\ncnt*binom(\nmk,#2)/2)}
+                \ifthenelse{\sevthr=1}{
+                    \pgfmathsetmacro{\all}{int(pow(2,(#1))-1)}
+                    \foreach\g in {1,...,3}{
+                        \pgfmathsetmacro{\sca}{\g>1?\g*sqrt(sqrt(\g))/1.2:\g*1}
+                        \ifthenelse{\mode=1}{
+                            \node[regular polygon,regular polygon sides=#1,minimum size=#1*18pt*\g]
+                            (p\g) {};
+                        }{
+                            \node[regular polygon,regular polygon sides=#1,
+                            minimum size=#1*12pt*\sca] (p\g) {};
+                        }
+                    }
+                    \ifthenelse{\mode=1}{
+                        \node[regular polygon,regular polygon sides=2*#1,minimum size=#1*18pt*3.75]
+                        (p4) {};
+                    }{
+                        \node[regular polygon,regular polygon sides=2*#1,
+                        minimum size=#1*10.6pt*5] (p4) {};
+                    }
+
+                    % inner rings, vertices
+                    \foreach\g in {1,...,3}{
+                        % Yes, I am too lazy to generate the seeds automatically. . .
+                        \pgfmathsetmacro{\tmp}{\g==1?7:(\g==2?int(0b1001010):int(0b110010))}
+                        \foreach \i[count=\j from 1] in {#1,...,1} {
+                            \pgfmathsetmacro{\idx}{int(mod(\i+5,#1)+1)}
+                            \edef\tp{\tmp}
+                            \pgfmathsetmacro{\tmpint}{\tmp}
+                            \pgfmathsetmacro{\tmpbin}{bin(\tmp)}
+
+                            \xdef\seen{\seen,\tmpbin}
+                            \xdef\poli{\poli,\g}
+                            \xdef\polc{\polc,\idx}
+                            \pgfmathsetmacro{\tp}{2*\tmp>\all?int(mod(2*\tmp,\all)):int(2*\tmp)}
+                            \global\edef\tmp{\tp}
+                        }
+                    }
+                    % outer ring
+                    \foreach \start[count=\s from 1] in {1010001,1000101}{
+                        \pgfmathsetmacro{\tmp}{int(0b\start)}
+                        \foreach \i[count=\j from 1] in {#1,...,1} {
+                            \pgfmathsetmacro{\idx}{int(mod(2*\i+\s+5,2*#1)+1)}
+                            \edef\tp{\tmp}
+                            \pgfmathsetmacro{\tmpint}{\tmp}
+                            \pgfmathsetmacro{\tmpbin}{bin(\tmp)}
+
+                            \xdef\seen{\seen,\tmpbin}
+                            \xdef\poli{\poli,4}
+                            \xdef\polc{\polc,\idx}
+                            \pgfmathsetmacro{\tp}{2*\tmp>\all?int(mod(2*\tmp,\all)):int(2*\tmp)}
+                            \global\edef\tmp{\tp}
+                        }
+                    }
+                    \gdef\prsx{\@gobble}
+                    \gdef\prsy{\@gobble}
+                    \foreach\i in {1,...,\ncnt}{
+                        \pgfmathsetmacro{\curseta}{int({\seen}[\i-1])}
+                        \pgfmathsetmacro{\cplia}{int({\poli}[\i-1])}
+                        \pgfmathsetmacro{\cplca}{int({\polc}[\i-1])}
+                        \foreach\j in {\i,...,\ncnt}{
+                            \pgfmathsetmacro{\cursetb}{int({\seen}[\j-1])}
+                            \pgfmathsetmacro{\cplib}{int({\poli}[\j-1])}
+                            \pgfmathsetmacro{\cplcb}{int({\polc}[\j-1])}
+                            \intersect{\inte}{#1}{0b\curseta}{0b\cursetb}
+                            \ifthenelse{\inte=0}{
+                                \pgfmathsetmacro{\hb}{\rotfix==2&&#1==6&&\cplia+\cplib==3
+                                &&\cplia!=\cplib&&(isodd(\cplca))}
+                                \ifthenelse{\hb=1}{
+                                    \bdraw(p\cplia.corner \cplca)--(p\cplib.corner \cplcb);
+                                }{
+                                    \ldraw(p\cplia.corner \cplca)--(p\cplib.corner \cplcb);
+                                }
+                                \xdef\prsx{\prsx,\i}
+                                \xdef\prsy{\prsy,\j}
+                            }{}
+                        }
+                    }
+                    \foreach\k in {1,...,\ecnt}{
+                        \pgfmathsetmacro{\i}{int({\prsx}[\k-1])}
+                        \pgfmathsetmacro{\j}{int({\prsy}[\k-1])}
+                        \pgfmathsetmacro{\cplia}{int({\poli}[\i-1])}
+                        \pgfmathsetmacro{\cplca}{int({\polc}[\i-1])}
+                        \pgfmathsetmacro{\cplib}{int({\poli}[\j-1])}
+                        \pgfmathsetmacro{\cplcb}{int({\polc}[\j-1])}
+
+                        \pgfmathsetmacro{\hb}{\rotfix==2&&#1==6&&\cplia+\cplib==3
+                        &&\cplia!=\cplib&&(isodd(\cplca))}
+                        \ifthenelse{\hb=1}{
+                            \draw[thick](p\cplia.corner \cplca) to[bend left]
+                            (p\cplib.corner \cplcb);
+                        }{
+                            \draw[thick](p\cplia.corner \cplca)--(p\cplib.corner \cplcb);
+                        }
+                    }
+                    \foreach\i in {1,...,\ncnt}{
+                        \pgfmathsetmacro{\pli}{int({\poli}[\i-1])}
+                        \pgfmathsetmacro{\plc}{int({\polc}[\i-1])}
+                        \pgfmathsetmacro{\curset}{int({\seen}[\i-1])}
+                        \pgfmathsetmacro{\curint}{int({\seen}[\i-1])}
+                        \pgfmathsetmacro{\curint}{int(0b\curint)}
+
+                        \ifthenelse{\mode=3}{
+                            \lnode(\curint)(p\pli.corner \plc);
+                        }{
+                            \pic[style=1\mode] (\curint) at (p\pli.corner \plc){kneserset=#1/\curset};
+                        }
+                    }
+
+                    \pgfmathsetmacro{\done}{1}
+                }{}
+            }{}
 
             % K(n, k), general case
             \ifthenelse{\done<1}{
