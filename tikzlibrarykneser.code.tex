@@ -572,8 +572,8 @@
 
             % K(2n, n)
             \ifthenelse{\done<1}{
-                \pgfmathsetmacro{\all}{int(pow(2,(#1+4))-1)}
                 \ifthenelse{\db=#1}{
+                    \pgfmathsetmacro{\all}{int(pow(2,(#1+1))-1)}
                     \pgfmathsetmacro{\tmo}{int(binom(#1,#2)/2-1)}
                     \pgfmathsetmacro{\tmr}{int(ceil(sqrt(\tmo*2)))}
 

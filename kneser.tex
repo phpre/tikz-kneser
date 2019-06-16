@@ -5,18 +5,25 @@
 
 \begin{document}
 \begin{tikzpicture}
-    \pic {kneser=0/0};
-    \foreach\j in {0,...,1} \pic at (-.5+\j, -.6) {kneser=1/\j};
-    \foreach\j in {0,...,2} \pic at (-2+\j*2, -1.5) {kneser=2/\j};
-    \foreach\j in {0,...,3} \pic at (-4.5+\j*3, -3.25) {kneser=3/\j};
-    \foreach\j in {0,...,4} \pic at (-8+\j*4, -5.75) {kneser=4/\j};
-    \foreach\j in {0,...,5} \pic at (-12.5+\j*5, -10) {kneser=5/\j};
-    \foreach\j in {0,...,6} \pic at (-19.5+\j*6.5, -15.5) {kneser=6/\j};
+    \pic {kneser=10/4};
+%    \pic[edge fix=2] (a) at (-14,0) {kneser=7/2};
+%    \pic[edge fix=2] (b) at (-7,0) {kneser=5/3};
+%
+%    \draw[thick] (a4a) -- (b7b);
+\end{tikzpicture}
+\end{document}
+    \pic[style=10] {kneser=0/0};
+    \foreach\j in {0,...,1} \pic[style=10] at (-.5+\j, -.6) {kneser=1/\j};
+    \foreach\j in {0,...,2} \pic[style=10] at (-2+\j*2, -1.5) {kneser=2/\j};
+    \foreach\j in {0,...,3} \pic[style=10] at (-4.5+\j*3, -3.25) {kneser=3/\j};
+    \foreach\j in {0,...,4} \pic[style=10] at (-8+\j*4, -5.75) {kneser=4/\j};
+    \foreach\j in {0,...,5} \pic[style=10] at (-12.5+\j*5, -10) {kneser=5/\j};
+    \foreach\j in {0,...,6} \pic[style=10,edge fix=2] at (-19.5+\j*6.5, -15.5) {kneser=6/\j};
     \pic at (-35, -25.5) {kneser=7/0};
     \pic at (35, -25.5) {kneser=7/7};
-    \foreach\j in {1,...,6} \pic at (-38.5+\j*11, -25.5) {kneser=7/\j};
-%    \pic at (-65, -40) {kneser=8/0};
-%    \pic at (65, -40) {kneser=8/8};
-%    \foreach\j in {1,...,7} \pic at (-72+\j*18, -40) {kneser=8/\j};
+    \foreach\j in {1,...,6} \pic at (-41.5+\j*11.5, -25.5) {kneser=7/\j};
+    \pic at (-65, -40) {kneser=8/0};
+    \pic at (65, -40) {kneser=8/8};
+    \foreach\j in {1,...,7} \pic at (-72+\j*18, -40) {kneser=8/\j};
 \end{tikzpicture}
 \end{document}
