@@ -18,8 +18,9 @@ And drawing kneser graphs becomes as easy as
 Limitations
 --
 
-Due to limitations of TeX, currently only the Kneser graphs `K(n,k)` for `n ≤ 9` can be generated;
-starting from `n ≥ 8` computing the graphs takes rather long though.
+Due to limitations of TeX, currently only the Kneser graphs `K(n,k)` for `n ≤ 11` (`n ≤ 13` works for some `k`; 
+also a huge TeX memory is needed for some graphs with `n ≥ 11`) 
+can be generated; starting from `n ≥ 8` computing the graphs takes rather long though.
 
 Examples
 ---
