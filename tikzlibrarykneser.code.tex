@@ -509,6 +509,19 @@
                             }
                         }
                     }
+                    \ifthenelse{#1=6}{
+                        \ifx\tikz@fillcolor\pgfutil@empty
+                            \node[regular polygon,regular polygon sides=6, draw,
+                            minimum size=#1*31.5pt,thick,rotate=0,rounded corners=10pt]{};
+                        \else
+                            \node[regular polygon,regular polygon sides=6,
+                            double=black, draw=\tikz@fillcolor,
+                            minimum size=#1*31.5pt,rotate=0,rounded corners=10pt]{};
+                            \node[regular polygon,regular polygon sides=6, draw,
+                            minimum size=#1*31.5pt,thick,rotate=0,rounded corners=10pt]{};
+                        \fi
+                    }{}
+
                     \gdef\prsx{\@gobble}
                     \gdef\prsy{\@gobble}
                     \foreach\i in {1,...,\ncnt}{
@@ -520,14 +533,19 @@
                             \pgfmathsetmacro{\cplib}{int({\poli}[\j-1])}
                             \pgfmathsetmacro{\cplcb}{int({\polc}[\j-1])}
                             \intersect{\inte}{#1}{0b\curseta}{0b\cursetb}
+                            \pgfmathsetmacro{\outer}{\rotfix==2&&#1==6&&\cplia==2
+                                                               &&\cplib==2}
+
                             \ifthenelse{\inte=0}{
+                                \ifthenelse{\outer=0}{
                                 \pgfmathsetmacro{\hb}{\rotfix==2&&#1==6&&\cplia+\cplib==3
-                                &&\cplia!=\cplib&&(isodd(\cplca))}
-                                \ifthenelse{\hb=1}{
-                                    \bdraw(p\cplia.corner \cplca)--(p\cplib.corner \cplcb);
-                                }{
-                                    \ldraw(p\cplia.corner \cplca)--(p\cplib.corner \cplcb);
-                                }
+                                                                &&\cplia!=\cplib&&(isodd(\cplca))}
+                                    \ifthenelse{\hb=1}{
+                                        \bdraw(p\cplia.corner \cplca)--(p\cplib.corner \cplcb);
+                                    }{
+                                        \ldraw(p\cplia.corner \cplca)--(p\cplib.corner \cplcb);
+                                    }
+                                }{}
                                 \xdef\prsx{\prsx,\i}
                                 \xdef\prsy{\prsy,\j}
                             }{}
@@ -542,14 +560,17 @@
                         \pgfmathsetmacro{\cplcb}{int({\polc}[\j-1])}
                         %\draw[thick](p\cplia.corner \cplca)--(p\cplib.corner \cplcb);
 
+                        \pgfmathsetmacro{\outer}{\rotfix==2&&#1==6&&\cplia==2&&\cplib==2}
                         \pgfmathsetmacro{\hb}{\rotfix==2&&#1==6&&\cplia+\cplib==3
                         &&\cplia!=\cplib&&(isodd(\cplca))}
+                        \ifthenelse{\outer=0}{
                         \ifthenelse{\hb=1}{
                             \draw[thick](p\cplia.corner \cplca) to[bend left]
                             (p\cplib.corner \cplcb);
                         }{
                             \draw[thick](p\cplia.corner \cplca)--(p\cplib.corner \cplcb);
                         }
+                        }{}
                     }
                     \foreach\i in {1,...,\ncnt}{
                         \pgfmathsetmacro{\pli}{int({\poli}[\i-1])}
