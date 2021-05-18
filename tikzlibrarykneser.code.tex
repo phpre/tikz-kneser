@@ -412,6 +412,7 @@
                                 \pgfmathsetmacro{\tm}{int(\nrem - #1)}
                                 \global\let\nrem=\tm
                                 \pgfmathsetmacro{\rott}{int(-90/#1)}
+                                %\pgfmathsetmacro{\rott}{int(0)}
                                 \ifthenelse{\mode=1}{
                                     \node[regular polygon,regular polygon sides=#1,
                                     minimum size=#1*\ld*19pt-#1*3pt,
@@ -425,11 +426,11 @@
                                 \global\let\lid=\tm
                                 \ifthenelse{\mode=1}{
                                     \node[regular polygon,regular polygon sides=#1,
-                                    minimum size=#1*\ld*20pt-#1*3pt,
+                                    minimum size=#1*\ld*19pt-#1*3pt,
                                     rotate=\rot-\rott](p\lid){};
                                 }{
                                     \node[regular polygon, regular polygon sides=#1,
-                                    minimum size=#1*\ld*16pt-#1*3pt,
+                                    minimum size=#1*\ld*15pt-#1*3pt,
                                     rotate=\rot-\rott](p\lid){};
                                 }
                                 \pgfmathsetmacro{\tm}{int(\lid+1)}
