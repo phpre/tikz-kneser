@@ -12,7 +12,7 @@ And drawing kneser graphs becomes as easy as
   \pic {kneser=9/2};
 \end{tikzpicture}
 ```
-![](https://github.com/PH111P/tikz-kneser/blob/master/pics/K_9_2.png)
+![](https://github.com/PH111P/tikz-kneser/blob/main/pics/K_9_2.png)
 
 
 Limitations
@@ -32,7 +32,7 @@ The Petersen Graph gets a special treatment:
   \pic {kneser=5/2};
 \end{tikzpicture}
 ```
-![](https://github.com/PH111P/tikz-kneser/blob/master/pics/K_5_2.png)
+![](https://github.com/PH111P/tikz-kneser/blob/main/pics/K_5_2.png)
 
 
 The graphs `K(n,1)` and `K(n,n-1)` get a special treatment as well:
@@ -43,7 +43,7 @@ The graphs `K(n,1)` and `K(n,n-1)` get a special treatment as well:
   \pic at (2.5,0) {kneser=7/6};
 \end{tikzpicture}
 ```
-![](https://github.com/PH111P/tikz-kneser/blob/master/pics/K_7_1_7_6.png)
+![](https://github.com/PH111P/tikz-kneser/blob/main/pics/K_7_1_7_6.png)
 
 Also, the ladder graphs `K(2n,n)` get a special treatment.
 Further, you may _color_ and _fill_ any of the Kneser graphs as well:
@@ -55,7 +55,7 @@ Further, you may _color_ and _fill_ any of the Kneser graphs as well:
   \pic[white,fill=blue] at (7,0) {kneser=8/4};
 \end{tikzpicture}
 ```
-![](https://github.com/PH111P/tikz-kneser/blob/master/pics/ladders.png)
+![](https://github.com/PH111P/tikz-kneser/blob/main/pics/ladders.png)
 
 If you prefer sets as nodes, the library has you covered, too (`style` may be one of `11`, `12` or `13`):
 
@@ -66,7 +66,7 @@ If you prefer sets as nodes, the library has you covered, too (`style` may be on
   \pic[style=12] at (7,0) {kneser=6/2};
 \end{tikzpicture}
 ```
-![](https://github.com/PH111P/tikz-kneser/blob/master/pics/styles.png)
+![](https://github.com/PH111P/tikz-kneser/blob/main/pics/styles.png)
 
 If you're only interested in these fancy representations of sets, just use the picture `kneserset`,
 which takes the length and the elements (as a bitstring) as arguments (and styles work as well):
@@ -82,7 +82,7 @@ which takes the length and the elements (as a bitstring) as arguments (and style
     \pic[white,fill=black,style=12] at (9.5,0) {kneserset=14/11};
 \end{tikzpicture}
 ```
-![](https://github.com/PH111P/tikz-kneser/blob/master/pics/kneserset.png)
+![](https://github.com/PH111P/tikz-kneser/blob/main/pics/kneserset.png)
 
 By the way, you may use the sets as nodes (which is kinda hacky and does look ugly if you use style `*1`, though):
 ``` Tex
@@ -95,7 +95,7 @@ By the way, you may use the sets as nodes (which is kinda hacky and does look ug
     \draw[-latex] (c) -- (b);
 \end{tikzpicture}
 ```
-![](https://github.com/PH111P/tikz-kneser/blob/master/pics/kneserset2.png)
+![](https://github.com/PH111P/tikz-kneser/blob/main/pics/kneserset2.png)
 
 Also check out the Kneser triangle (uncomment the last 3 lines if you like to see your TeX installation struggle):
 ``` Tex
@@ -115,4 +115,4 @@ Also check out the Kneser triangle (uncomment the last 3 lines if you like to se
     %\foreach\j in {1,...,7} \pic at (-72+\j*18, -40) {kneser=8/\j};
 \end{tikzpicture}
 ```
-![](https://github.com/PH111P/tikz-kneser/blob/master/pics/triangle.png)
+![](https://github.com/PH111P/tikz-kneser/blob/main/pics/triangle.png)
