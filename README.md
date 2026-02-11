@@ -1,4 +1,6 @@
 # tikz-kneser
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18612701.svg)](https://doi.org/10.5281/zenodo.18612701)
+
 A tikz-library for drawing Kneser graphs (that doesn't rely on `tikz-graphdrawing` or `LuaLatex`).
 
 Include this library via
